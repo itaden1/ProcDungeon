@@ -18,8 +18,9 @@ namespace ProcDungeon.Structures
 		public BSPNode Branch2;
 		public bool IsLeaf = false;
 		private List<BSPNode> _leaves = new List<BSPNode>();
+        private int _margin;
 
-		public List<BSPNode> Leaves { 
+        public List<BSPNode> Leaves { 
 			get
 			{
 				if (_leaves.Count <= 0)
@@ -58,9 +59,10 @@ namespace ProcDungeon.Structures
 				Orientation _orientation = GetOrientation();
 				if (_orientation == Orientation.Vertical)
 				{
+					int split = _random.Next(LeftEdge + _width / 3, RightEdge - _width / 3);
 					Branch1 = new BSPNode(
 						LeftEdge, 
-						_random.Next(LeftEdge + minSize, RightEdge - minSize), 
+						split, 
 						TopEdge, 
 						BottomEdge 
 					);
@@ -73,11 +75,12 @@ namespace ProcDungeon.Structures
 				}
 				else
 				{
+					int split = _random.Next(TopEdge + _height / 3, BottomEdge - _height / 3);
 					Branch1 = new BSPNode(
 						LeftEdge, 
 						RightEdge, 
 						TopEdge, 
-						_random.Next(TopEdge + minSize, BottomEdge - minSize)
+						split
 					);
 					Branch2 = new BSPNode(
 						LeftEdge, 

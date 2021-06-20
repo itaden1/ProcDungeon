@@ -5,12 +5,12 @@ namespace ProcDungeon.Structures
 {
     //<summary>Class <c>Tile</c> 
     //Holds data related to a map region</summary>
-    public class Tile: INode
+    public class Tile: ITileNode
     {
         public string NodeType { get; }
         public Point Coords { get; set; }
         public string Colour { get; set; }
-
+        public bool Blocking { get; set; }
         public Tile(int x, int y, string ntype, string col)
         {
             Coords = new Point(x,y);

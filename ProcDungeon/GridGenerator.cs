@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
+using ProcDungeon.Algorythms;
 using ProcDungeon.Interfaces;
 using ProcDungeon.Structures;
 
 namespace ProcDungeon
 {
-
 	public struct Rectangle
 	{
 		public int x;
@@ -21,11 +21,11 @@ namespace ProcDungeon
 		public override string ToString() => $"({x},{y})";
 	} 
 
-	 public class GridGenerator
+	public class GridGenerator
 	{
 		private Random _random = new Random();
 
-		public T[,] GenerateGrid<T>(T ob, int size) where T : INode, new()
+		public T[,] GenerateGrid<T>(T ob, int size) where T : ITileNode, new()
 		{
 			T[,] grid = new T[size,size];
 			for (int i = 0; i < size; i++)
@@ -37,7 +37,7 @@ namespace ProcDungeon
 			}
 			return grid;
 		}
-		public Tile[,] GenerateTileGrid(int size)
+		public static Tile[,] GenerateTileGrid(int size)
 		{
 			Tile[,] grid = new Tile[size, size];
 			for (int i = 0; i < size; i++)
@@ -62,48 +62,8 @@ namespace ProcDungeon
 		{
 
 			Tile[,] map = GenerateTileGrid(size);
-
-			BSPNode BSPTree = new BSPNode(0, map.GetLength(0), 0,  map.GetLength(1));
-			BSPTree.Partition(graph.NodeCount/2, 4);
-
-			List<BSPNode> leafNodes = BSPTree.Leaves;
-			var rects = new List<Rectangle>();
-
-			foreach (DNode node in graph.Nodes)
-			{
-				Rectangle rect;
-				while (true)
-				{
-					var p = new Point(_random.Next(1, size - 6), _random.Next(1, size - 6));
-					int w = _random.Next(2, 6);
-					int h = _random.Next(2, 6);
-					
-					// Create a rect
-					rect = new Rectangle(){x=p.x, y=p.y, width=w, height=h};
-
-					// make sure its inside bounds and does not overlap with previouse rects
-					bool validPlacement = true;
-					if (rects.Count > 0)
-					{
-						foreach(Rectangle r in rects)
-						{
-							if (rect.OverlapsWith(r)) validPlacement = false;
-						}
-					}
-					if (validPlacement) break;
-					else continue;
-				}
-		
-				// place it on the grid
-				for (int y = rect.y; y < rect.y + rect.height; y++)
-				{
-					for (int x = rect.x; x < rect.x + rect.width; x++)
-					{
-						map[y,x].Colour = "#00dd00";
-					}
-				}
-				rects.Add(rect);
-			}
+			BSPDungeonAlgorythm<Tile> alg = new BSPDungeonAlgorythm<Tile>();
+			Tile[,] tileMap = alg.Generate<Tile>(map, graph);
 
 			return map;
 		}
