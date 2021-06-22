@@ -3,11 +3,40 @@ using Xunit;
 using ProcDungeon;
 using ProcDungeon.Structures;
 using ProcDungeon.Algorythms;
+using Xunit.Abstractions;
+using System.Text;
+using System.IO;
 
 namespace ProcDungeon.Tests
 {
+    public class Converter : TextWriter
+    {
+        ITestOutputHelper _output;
+        public Converter(ITestOutputHelper output)
+        {
+            _output = output;
+        }
+        public override Encoding Encoding
+        {
+            get { return Encoding.UTF8; }
+        }
+        public override void WriteLine(string message)
+        {
+            _output.WriteLine(message);
+        }
+        public override void WriteLine(string format, params object[] args)
+        {
+            _output.WriteLine(format, args);
+        }
+    }
     public class TestBSPAlgorythm
     {
+        public TestBSPAlgorythm(ITestOutputHelper output)
+        {
+            Converter converter = new Converter(output);
+            Console.SetOut(converter);
+        }
+
         [Fact]
         public void TestGenerate()
         {
@@ -20,6 +49,8 @@ namespace ProcDungeon.Tests
             }
 			BSPDungeonAlgorythm<Tile> alg = new BSPDungeonAlgorythm<Tile>();
 			Tile[,] tileMap = alg.Generate<Tile>(map, graph);
+
+            Assert.Equal(graph.NodeCount, alg.Rooms.Count);
         }
     }
     public class TestTRandomAlgorythm

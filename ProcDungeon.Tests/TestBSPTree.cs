@@ -14,7 +14,7 @@ namespace ProcDungeon.Tests
         public void TestSinglePartitioningCreatesLeaves()
         {
             var BSPTree = new BSPNode(0, 10, 0, 10);
-            BSPTree.Partition(1, 4);
+            BSPTree.Partition(1);
             Assert.True(BSPTree.Branch1.IsLeaf);
             Assert.True(BSPTree.Branch2.IsLeaf);
         }
@@ -22,7 +22,7 @@ namespace ProcDungeon.Tests
         public void Test2PartitionsReturns4Leaves()
         {
             var BSPTree = new BSPNode(0, 50, 0, 50);
-            BSPTree.Partition(2, 10);
+            BSPTree.Partition(2);
             Assert.Equal(4, BSPTree.Leaves.Count);
         }
         [Fact]
@@ -36,7 +36,7 @@ namespace ProcDungeon.Tests
             }
 
             var BSPTree = new BSPNode(0, 50, 0, 50);
-            BSPTree.Partition(graph.NodeCount/2, 10);
+            BSPTree.Partition(graph.NodeCount/2);
             Assert.True(BSPTree.Leaves.Count >= graph.NodeCount);
         }
     }
