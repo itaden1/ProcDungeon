@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace ProcDungeon.Structures
 {
@@ -44,60 +45,83 @@ namespace ProcDungeon.Structures
         }
         private List<BSPNode> GetAllLeaves()
         {
+            
             List<BSPNode> leaves = new List<BSPNode>();
-            if (IsLeaf) leaves.Add(this);
-            else
+            if (Branch1 is null && Branch2 is null)
+            {
+                Console.WriteLine("Found leaf");
+                return leaves;
+            }
+            if (Branch1 != null)
             {
                 leaves.AddRange(Branch1.GetAllLeaves());
+                Console.WriteLine("looking deeper b1");
+            }
+            if (Branch2 != null)
+            {
                 leaves.AddRange(Branch2.GetAllLeaves());
+                Console.WriteLine("looking deeper b2");
             }
             return leaves;
         }
         public void Partition(int iterations)
         {
-            if (iterations > 0)
+            if (iterations > 1)
             {
+                Console.WriteLine("*");
                 Orientation _orientation = GetOrientation();
                 if (_orientation == Orientation.Vertical)
                 {
-                    int split = _random.Next(LeftEdge + _width / 3, RightEdge - _width / 3);
-                    Branch1 = new BSPNode(
-                        LeftEdge,
-                        split,
-                        TopEdge,
-                        BottomEdge
-                    );
-                    Branch2 = new BSPNode(
-                        Branch1.RightEdge,
-                        RightEdge,
-                        TopEdge,
-                        BottomEdge
-                    );
+                    CreateVerticalPartition();
                 }
                 else
                 {
-                    int split = _random.Next(TopEdge + _height / 3, BottomEdge - _height / 3);
-                    Branch1 = new BSPNode(
-                        LeftEdge,
-                        RightEdge,
-                        TopEdge,
-                        split
-                    );
-                    Branch2 = new BSPNode(
-                        LeftEdge,
-                        RightEdge,
-                        Branch1.BottomEdge,
-                        BottomEdge
-                    );
+                    CreateHorizontalPartition();
                 }
-                int remainingIterations = iterations - 1;
-                Branch1.Partition(remainingIterations);
-                Branch2.Partition(remainingIterations);
+                iterations = iterations - 2;
+
+                var remaining = iterations / 2;
+                var odd = iterations % 2;
+
+                Console.WriteLine($"iterations{iterations} b1={remaining + odd} : b2={remaining}");
+                Branch1.Partition(remaining + odd);
+                Branch2.Partition(remaining);
+
             }
-            else
-            {
-                IsLeaf = true;
-            }
+        }
+
+        private void CreateHorizontalPartition()
+        {
+            int split = _random.Next(TopEdge + _height / 3, BottomEdge - _height / 3);
+            Branch1 = new BSPNode(
+                LeftEdge,
+                RightEdge,
+                TopEdge,
+                split
+            );
+            Branch2 = new BSPNode(
+                LeftEdge,
+                RightEdge,
+                Branch1.BottomEdge,
+                BottomEdge
+            );
+        }
+
+        private void CreateVerticalPartition()
+        {
+            int split = _random.Next(LeftEdge + _width / 3, RightEdge - _width / 3);
+            Branch1 = new BSPNode(
+                LeftEdge,
+                split,
+                TopEdge,
+                BottomEdge
+            );
+            Branch2 = new BSPNode(
+                Branch1.RightEdge,
+                RightEdge,
+                TopEdge,
+                BottomEdge
+            );
         }
         private Orientation GetOrientation()
         {
@@ -108,6 +132,15 @@ namespace ProcDungeon.Structures
 
         }
 
-        public override string ToString() => $"{LeftEdge} | {RightEdge} | {TopEdge} | {BottomEdge}";
+        public override string ToString()
+        {
+            var str  = new StringBuilder();
+            if (Branch2 is null) str.Append(">");
+            else str.Append(Branch2.ToString());
+            if (Branch1 is null) str.Append("<");
+            else str.Append(Branch1.ToString());
+
+            return str.ToString();
+        }
     }
 }

@@ -8,28 +8,50 @@ namespace ProcDungeon.Tests
 {
     public class TestBSPTree
     {
-        private readonly ITestOutputHelper output;
-
+        public TestBSPTree(ITestOutputHelper output)
+        {
+            Converter converter = new Converter(output);
+            Console.SetOut(converter);
+        }
         [Fact]
-        public void TestSinglePartitioningCreatesLeaves()
+        public void TestSingleIterationCreates1Leave()
         {
             var BSPTree = new BSPNode(0, 10, 0, 10);
             BSPTree.Partition(1);
-            Assert.True(BSPTree.Branch1.IsLeaf);
-            Assert.True(BSPTree.Branch2.IsLeaf);
+            Assert.Equal(1, BSPTree.Leaves.Count);
         }
+
         [Fact]
-        public void Test2PartitionsReturns4Leaves()
+        public void Test2IterationsReturns2Leaves()
         {
             var BSPTree = new BSPNode(0, 50, 0, 50);
             BSPTree.Partition(2);
-            Assert.Equal(4, BSPTree.Leaves.Count);
+            Console.WriteLine(BSPTree);
+            Assert.Equal(2, BSPTree.Leaves.Count);
+        }
+
+        [Fact]
+        public void Test3IterationsReturns3Leaves()
+        {
+            var BSPTree = new BSPNode(0, 50, 0, 50);
+            BSPTree.Partition(3);
+            Console.WriteLine(BSPTree);
+            Assert.Equal(3, BSPTree.Leaves.Count);
+        }
+        
+        [Fact]
+        public void Test4IterationsReturns4Leaves()
+        {
+            var BSPTree = new BSPNode(0, 50, 0, 50);
+            BSPTree.Partition(5);
+            Console.WriteLine(BSPTree);
+            Assert.Equal(5, BSPTree.Leaves.Count);
         }
         [Fact]
         public void TestLeafCountGreatorEqualGraphSize()
         {
             var graph = new DungeonGraph();
-            for (int i = 0; i <= 5; i++)
+            for (int i = 0; i <= 9; i++)
             {
                 var n = new DNode(i);
                 graph.AddNode(n);
@@ -37,7 +59,7 @@ namespace ProcDungeon.Tests
 
             var BSPTree = new BSPNode(0, 50, 0, 50);
             BSPTree.Partition(graph.NodeCount/2);
-            Assert.True(BSPTree.Leaves.Count >= graph.NodeCount);
+            Assert.Equal(graph.NodeCount, BSPTree.Leaves.Count);
         }
     }
 }
