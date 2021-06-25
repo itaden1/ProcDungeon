@@ -92,7 +92,7 @@ namespace ProcDungeon
                         continue;
                     }
                     // If the node in direction allready has maximum number of edges pick a new node
-                    if (newNode.GetEdges().Count >= 4) 
+                    if (newNode.Edges.Count >= 4) 
                     {
                         choices.Remove(choice);
                         continue;
@@ -124,7 +124,7 @@ namespace ProcDungeon
         private DNode getRandomNode(List<DNode> nodeList)
         {
             var validNodesQ = from n in nodeList
-                where n.GetEdges().Count < 3
+                where n.Edges.Count < 3
                 select n;
 
             List<DNode> nodes = validNodesQ.ToList();

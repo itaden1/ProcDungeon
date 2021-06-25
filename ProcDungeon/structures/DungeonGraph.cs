@@ -15,12 +15,16 @@ namespace ProcDungeon.Structures
         public void AddNode(DNode n)
         {
             _nodes.Add(n);
-            foreach(DEdge e in n.GetEdges())
+            foreach(DEdge e in n.Edges)
             {
                 _edges.Add(e);
             }
         }
 
+        public void AddNodes(List<DNode> nodes)
+        {
+            _nodes.AddRange(nodes);
+        }
 
         public Dictionary<int, List<int>> AsSimpleDictionary()
         {
@@ -28,7 +32,7 @@ namespace ProcDungeon.Structures
             foreach(DNode n in  _nodes)
             {
                 dict[n.ID] = new List<int>();
-                foreach(DEdge e in n.GetEdges())
+                foreach(DEdge e in n.Edges)
                 {
                     dict[n.ID].Add(e.NodeTo.ID);
                 }
@@ -51,15 +55,14 @@ namespace ProcDungeon.Structures
     {
         public int ID;
         private List<DEdge> _edges = new List<DEdge>();
+        public List<DEdge> Edges {get => _edges; }
         public DNode(int id) => this.ID = id;
 
         public void AddEdge(DEdge e) => _edges.Add(e);
 
-        public List<DEdge> GetEdges() => _edges;
-
         public bool HasEdgeToNode(DNode node)
         {
-            foreach(DEdge e in GetEdges())
+            foreach(DEdge e in Edges)
             {
                 if (e.NodeTo.ID == node.ID) return true;
             }
