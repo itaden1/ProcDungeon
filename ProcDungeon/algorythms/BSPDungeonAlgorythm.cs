@@ -16,7 +16,7 @@ namespace ProcDungeon.Algorythms
             where T : ITileNode
         {
             BSPNode BSPTree = new BSPNode(0, canvas.GetLength(0), 0, canvas.GetLength(1));
-            BSPTree.Partition((int)(Math.Log(graph.NodeCount, 2)));
+            BSPTree.Partition(graph.NodeCount);
             var rects = new List<Rectangle>();
 
             var start = new Point(canvas.GetLength(1) / 2, 0);
@@ -32,14 +32,21 @@ namespace ProcDungeon.Algorythms
             var firstLeaf = query.First();
 
             var leafQueue = new Queue<BSPNode>();
+            var nodeQueue = new Queue<DNode>();
             leafQueue.Enqueue(firstLeaf);
+            nodeQueue.Enqueue(graph.Nodes[0]);
 
             var processedLeaves = new List<BSPNode>();
+            var processedNodes = new List<DNode>();
 
-            while (leafQueue.Count > 0)
-            {
+            var emergencyBreak = 100;
+            while(nodeQueue.Count > 0)
+            {   
+                emergencyBreak--;
+                if(emergencyBreak <= 0) break;
 
                 var leaf = leafQueue.Dequeue();
+                var node = nodeQueue.Dequeue();
                 var rect = new Rectangle()
                 {
                     x = leaf.LeftEdge + 1,
@@ -61,18 +68,38 @@ namespace ProcDungeon.Algorythms
 
                 // Get neighbouring leaves from BSPTree
                 IEnumerable<BSPNode> leafQuery = 
-                    from n in leafNodes
-                    where n.RightEdge == leaf.LeftEdge ||
-                    n.TopEdge == leaf.BottomEdge ||
-                    n.LeftEdge == leaf.RightEdge ||
-                    n.BottomEdge == leaf.TopEdge
-                    select n;
+                    from ln in leafNodes
+                    where ln.RightEdge == leaf.LeftEdge
+                          || ln.TopEdge == leaf.BottomEdge
+                          || ln.LeftEdge == leaf.RightEdge
+                          || ln.BottomEdge == leaf.TopEdge
+                    select ln;
 
-                foreach (BSPNode n in leafQuery)
+                var leafList = leafQuery.ToList();
+         
+ 
+                foreach(DEdge e in node.Edges)
                 {
-                    if (!processedLeaves.Contains(n)) leafQueue.Enqueue(n);
+           
+                    leafQueue.Enqueue(leafList[0]);
+                    leafList.RemoveAt(0);
+                
+                    Console.WriteLine($"node({node}) has {node.Edges.Count} edges");
+                    Console.WriteLine($"{e.NodeFrom}--->{e.NodeTo}");
+                    if (e.NodeFrom == node && !(processedNodes.Contains(e.NodeTo)))
+                    {
+                        Console.WriteLine($"queuing {e.NodeTo}");
+                        nodeQueue.Enqueue(e.NodeTo);
+                    }
+                    else if (!(processedNodes.Contains(e.NodeFrom)))
+                    {
+                        Console.WriteLine($"queuing {e.NodeFrom}");
+                        nodeQueue.Enqueue(e.NodeFrom);
+                    }
+         
                 }
                 processedLeaves.Add(leaf);
+                processedNodes.Add(node);
             }
             _rooms.AddRange(rects);
             return canvas;

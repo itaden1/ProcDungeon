@@ -3,7 +3,7 @@ using Xunit;
 using ProcDungeon.Structures;
 using ProcDungeon.Algorythms;
 using Xunit.Abstractions;
-
+using System.Collections.Generic;
 
 namespace ProcDungeon.Tests
 {
@@ -21,11 +21,18 @@ namespace ProcDungeon.Tests
         {
 			Tile[,] map = GridGenerator.GenerateTileGrid(10);
             var graph = new DungeonGraph();
-            for (int i = 0; i <= 3; i++)
-            {
-                var n = new DNode(i);
-                graph.AddNode(n);
-            }
+            var n1 = new DNode(1);
+            var n2 = new DNode(2);
+            var n3 = new DNode(3);
+
+            var e1 = new DEdge(n1, n2);
+            var e2 = new DEdge(n2, n3);
+
+            n1.AddEdge(e1);
+            n2.AddEdge(e2);
+
+            graph.AddNodes(new List<DNode>{n1, n2, n3});
+
 			BSPDungeonAlgorythm<Tile> alg = new BSPDungeonAlgorythm<Tile>();
 			Tile[,] tileMap = alg.Generate<Tile>(map, graph);
 
