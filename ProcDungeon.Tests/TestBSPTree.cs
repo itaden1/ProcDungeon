@@ -26,7 +26,6 @@ namespace ProcDungeon.Tests
         {
             var BSPTree = new BSPNode(0, 50, 0, 50);
             BSPTree.Partition(2);
-            Console.WriteLine(BSPTree);
             Assert.Equal(2, BSPTree.Leaves.Count);
         }
 
@@ -35,30 +34,28 @@ namespace ProcDungeon.Tests
         {
             var BSPTree = new BSPNode(0, 50, 0, 50);
             BSPTree.Partition(3);
-            Console.WriteLine(BSPTree);
             Assert.Equal(3, BSPTree.Leaves.Count);
         }
         
         [Fact]
-        public void Test4IterationsReturns4Leaves()
+        public void Test5IterationsReturns5Leaves()
         {
             var BSPTree = new BSPNode(0, 50, 0, 50);
             BSPTree.Partition(5);
-            Console.WriteLine(BSPTree);
             Assert.Equal(5, BSPTree.Leaves.Count);
         }
         [Fact]
         public void TestLeafCountGreatorEqualGraphSize()
         {
             var graph = new DungeonGraph();
-            for (int i = 0; i <= 9; i++)
+            for (int i = 0; i <= 8; i++)
             {
                 var n = new DNode(i);
                 graph.AddNode(n);
             }
 
             var BSPTree = new BSPNode(0, 50, 0, 50);
-            BSPTree.Partition(graph.NodeCount/2);
+            BSPTree.Partition(graph.NodeCount);
             Assert.Equal(graph.NodeCount, BSPTree.Leaves.Count);
         }
     }

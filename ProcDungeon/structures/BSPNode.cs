@@ -17,7 +17,6 @@ namespace ProcDungeon.Structures
 
         public BSPNode Branch1;
         public BSPNode Branch2;
-        public bool IsLeaf = false;
         private List<BSPNode> _leaves = new List<BSPNode>();
         private int _margin;
 
@@ -45,22 +44,19 @@ namespace ProcDungeon.Structures
         }
         private List<BSPNode> GetAllLeaves()
         {
-            
             List<BSPNode> leaves = new List<BSPNode>();
             if (Branch1 is null && Branch2 is null)
             {
-                Console.WriteLine("Found leaf");
+                leaves.Add(this);
                 return leaves;
             }
             if (Branch1 != null)
             {
                 leaves.AddRange(Branch1.GetAllLeaves());
-                Console.WriteLine("looking deeper b1");
             }
             if (Branch2 != null)
             {
                 leaves.AddRange(Branch2.GetAllLeaves());
-                Console.WriteLine("looking deeper b2");
             }
             return leaves;
         }
@@ -68,7 +64,6 @@ namespace ProcDungeon.Structures
         {
             if (iterations > 1)
             {
-                Console.WriteLine("*");
                 Orientation _orientation = GetOrientation();
                 if (_orientation == Orientation.Vertical)
                 {
@@ -78,15 +73,23 @@ namespace ProcDungeon.Structures
                 {
                     CreateHorizontalPartition();
                 }
-                iterations = iterations - 2;
-
-                var remaining = iterations / 2;
-                var odd = iterations % 2;
-
-                Console.WriteLine($"iterations{iterations} b1={remaining + odd} : b2={remaining}");
-                Branch1.Partition(remaining + odd);
-                Branch2.Partition(remaining);
-
+                iterations = iterations--;
+                if (iterations > 0 ){
+                    if (iterations == 1)
+                    {
+                        Branch1.Partition(2);
+                    }
+                    else if (iterations % 2 == 0)
+                    {
+                        Branch1.Partition(iterations / 2);
+                        Branch2.Partition(iterations / 2 );
+                    }
+                    else
+                    {
+                        Branch1.Partition(iterations / 2 + iterations % 2);
+                        Branch2.Partition(iterations / 2);
+                    }
+                }
             }
         }
 
@@ -130,17 +133,6 @@ namespace ProcDungeon.Structures
 
             return _random.Next(0, 2) == 1 ? Orientation.Horizontal : Orientation.Vertical;
 
-        }
-
-        public override string ToString()
-        {
-            var str  = new StringBuilder();
-            if (Branch2 is null) str.Append(">");
-            else str.Append(Branch2.ToString());
-            if (Branch1 is null) str.Append("<");
-            else str.Append(Branch1.ToString());
-
-            return str.ToString();
         }
     }
 }
