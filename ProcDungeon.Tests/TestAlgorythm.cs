@@ -19,7 +19,7 @@ namespace ProcDungeon.Tests
         [Fact]
         public void TestGenerate()
         {
-			Tile[,] map = GridGenerator.GenerateTileGrid(10);
+            var map = new DungeonGrid<Tile>(10);
             var graph = new DungeonGraph();
             var n1 = new DNode(1);
             var n2 = new DNode(2);
@@ -33,8 +33,8 @@ namespace ProcDungeon.Tests
 
             graph.AddNodes(new List<DNode>{n1, n2, n3});
 
-			BSPDungeonAlgorythm<Tile> alg = new BSPDungeonAlgorythm<Tile>();
-			Tile[,] tileMap = alg.Generate<Tile>(map, graph);
+			BSPDungeonAlgorythm alg = new BSPDungeonAlgorythm();
+			DungeonGrid<Tile> tileMap = alg.Generate(map, graph);
 
             Assert.Equal(graph.NodeCount, alg.Rooms.Count);
         }
@@ -44,7 +44,7 @@ namespace ProcDungeon.Tests
         [Fact]
         public void TestGenerate()
         {
-            Tile[,] map = GridGenerator.GenerateTileGrid(100);
+            var map = new DungeonGrid<Tile>(100);
             var graph = new DungeonGraph();
             for (int i = 0; i <= 3; i++)
             {
@@ -52,8 +52,8 @@ namespace ProcDungeon.Tests
                 graph.AddNode(n);
             }
 
-            RandomPlacementAlgorythm<Tile> alg = new RandomPlacementAlgorythm<Tile>();
-			Tile[,] tileMap = alg.Generate<Tile>(map, graph);
+            RandomPlacementAlgorythm alg = new RandomPlacementAlgorythm();
+			DungeonGrid<Tile> tileMap = alg.Generate(map, graph);
             Assert.Equal(graph.NodeCount, alg.Rooms.Count);
         }
     }

@@ -8,17 +8,16 @@ namespace ProcDungeon.Tests
     public class TestDungeonGen
     {
         [Fact]
-        public void TestGenerateMapGrid()
+        public void TestGenerateGrid()
         {
-            var gridGen = new GridGenerator();
             var graph = new DungeonGraph();
             for (int i = 0; i <= 3; i++)
             {
                 var n = new DNode(i);
                 graph.AddNode(n);
             }
-            Tile[,] tiles = gridGen.GenerateMapGrid(graph, 50, new char[1]);
-            Assert.Equal(tiles.GetLength(0), 50);
+            var map = new DungeonGrid<Tile>(50);
+            Assert.Equal(map.Grid.GetLength(0), 50);
         }
     }
 }

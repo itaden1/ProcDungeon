@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace ProcDungeon.Structures
@@ -60,6 +61,17 @@ namespace ProcDungeon.Structures
             }
             return leaves;
         }
+        public BSPNode GetLeafeFromPoint(Point p)
+        {
+            // Select an edge node from the BSPTree based on somecoordinates
+            IEnumerable<BSPNode> query = from n in Leaves
+                                where n.TopEdge <= p.y
+                                where n.BottomEdge >= p.y
+                                where n.LeftEdge <= p.x
+                                where n.RightEdge >= p.x
+                                select n;
+            return query.First();
+        }
         public void Partition(int iterations)
         {
             if (iterations > 1)
@@ -91,6 +103,19 @@ namespace ProcDungeon.Structures
                     }
                 }
             }
+        }
+
+        internal List<BSPNode> GetNeighbouringLeaves(BSPNode leaf)
+        {
+            // get a list of leaves that are neighbours of the supplied leaf
+            IEnumerable<BSPNode> query = from ln in Leaves
+                            where ln.RightEdge == leaf.LeftEdge
+                                || ln.TopEdge == leaf.BottomEdge
+                                || ln.LeftEdge == leaf.RightEdge
+                                || ln.BottomEdge == leaf.TopEdge
+                            select ln;
+
+            return query.ToList();
         }
 
         private void CreateHorizontalPartition()

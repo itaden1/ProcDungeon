@@ -3,9 +3,9 @@ using ProcDungeon.Structures;
 
 namespace ProcDungeon.Interfaces
 {
-    public interface IGenerationAlgorythm<T>
+    public interface IGenerationAlgorythm
     {
         public List<Rectangle> Rooms { get; }
-        public T[,] Generate<T>(T[,] canvas, DungeonGraph graph) where T : ITileNode;
+        public DungeonGrid<Tile> Generate(DungeonGrid<Tile> canvas, DungeonGraph graph);
     }
 }

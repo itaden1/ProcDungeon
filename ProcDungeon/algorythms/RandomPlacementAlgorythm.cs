@@ -5,7 +5,7 @@ using ProcDungeon.Structures;
 
 namespace ProcDungeon.Algorythms
 {
-    public class RandomPlacementAlgorythm<T> : IGenerationAlgorythm<T>
+    public class RandomPlacementAlgorythm : IGenerationAlgorythm
     {
         private int _faileThreshold = 100;
         private Random _random = new Random();
@@ -13,8 +13,7 @@ namespace ProcDungeon.Algorythms
 
         public List<Rectangle> Rooms  => _rooms;
 
-        public T[,] Generate<T>(T[,] canvas, DungeonGraph graph)
-            where T : ITileNode
+        public DungeonGrid<Tile> Generate(DungeonGrid<Tile> grid, DungeonGraph graph)
         {
             var rects = new List<Rectangle>();
 			foreach (DNode node in graph.Nodes)
@@ -27,7 +26,7 @@ namespace ProcDungeon.Algorythms
                     {
                         throw new Exception("dungeon generation failed due to infinite loop");
                     }
-                    var p = new Point(_random.Next(1, canvas.GetLength(0) - 6), _random.Next(1, canvas.GetLength(1) - 6));
+                    var p = new Point(_random.Next(1, grid.Grid.GetLength(0) - 6), _random.Next(1, grid.Grid.GetLength(1) - 6));
                     int w = _random.Next(2, 6);
                     int h = _random.Next(2, 6);
                     
@@ -52,13 +51,13 @@ namespace ProcDungeon.Algorythms
                 {
                     for (int x = rect.x; x < rect.x + rect.width; x++)
                     {
-                        canvas[y,x].Blocking = false;
+                        grid.Grid[y,x].Blocking = false;
                     }
                 }
                 rects.Add(rect);
             }
             _rooms.AddRange(rects);
-            return canvas;
+            return grid;
         }
     }
 }

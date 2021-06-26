@@ -7,20 +7,12 @@ namespace ProcDungeon.Structures
     //Holds data related to a map region</summary>
     public class Tile: ITileNode
     {
-        public string NodeType { get; }
-        public Point Coords { get; set; }
+        public string TileType { get; }
         public string Colour { get; set; }
         public bool Blocking { get; set; }
-        public Tile(int x, int y, string ntype, string col)
+        public Tile()
         {
-            Coords = new Point(x,y);
-            NodeType = ntype;
-            Colour = col;
-        }
-        public string GetData() => ToString();
-        public override string ToString()
-        {
-            return NodeType;
+            Blocking = true;
         }
     }
 }
