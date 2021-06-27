@@ -13,7 +13,7 @@ namespace ProcDungeon.Algorythms
 
         public List<Rectangle> Rooms  => _rooms;
 
-        public DungeonGrid<Tile> Generate(DungeonGrid<Tile> grid, DungeonGraph graph)
+        public void Generate(DungeonGrid<Tile> grid, DungeonGraph graph)
         {
             var rects = new List<Rectangle>();
 			foreach (DNode node in graph.Nodes)
@@ -57,7 +57,6 @@ namespace ProcDungeon.Algorythms
                 rects.Add(rect);
             }
             _rooms.AddRange(rects);
-            return grid;
         }
     }
 }
