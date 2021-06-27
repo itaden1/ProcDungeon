@@ -13,7 +13,9 @@ namespace ProcDungeon.Structures
         public int RightEdge;
         public int BottomEdge;
         private int _width;
+        public int Width => _width;
         private int _height;
+        public int Height => _height;
         private Random _random = new Random();
 
         public BSPNode Branch1;
@@ -65,11 +67,11 @@ namespace ProcDungeon.Structures
         {
             // Select an edge node from the BSPTree based on somecoordinates
             IEnumerable<BSPNode> query = from n in Leaves
-                                where n.TopEdge <= p.y
-                                where n.BottomEdge >= p.y
-                                where n.LeftEdge <= p.x
-                                where n.RightEdge >= p.x
-                                select n;
+                                         where n.TopEdge <= p.y
+                                         where n.BottomEdge >= p.y
+                                         where n.LeftEdge <= p.x
+                                         where n.RightEdge >= p.x
+                                         select n;
             return query.First();
         }
         public void Partition(int iterations)
@@ -86,7 +88,8 @@ namespace ProcDungeon.Structures
                     CreateHorizontalPartition();
                 }
                 iterations = iterations--;
-                if (iterations > 0 ){
+                if (iterations > 0)
+                {
                     if (iterations == 1)
                     {
                         Branch1.Partition(2);
@@ -94,7 +97,7 @@ namespace ProcDungeon.Structures
                     else if (iterations % 2 == 0)
                     {
                         Branch1.Partition(iterations / 2);
-                        Branch2.Partition(iterations / 2 );
+                        Branch2.Partition(iterations / 2);
                     }
                     else
                     {
@@ -109,11 +112,11 @@ namespace ProcDungeon.Structures
         {
             // get a list of leaves that are neighbours of the supplied leaf
             IEnumerable<BSPNode> query = from ln in Leaves
-                            where ln.RightEdge == leaf.LeftEdge
-                                || ln.TopEdge == leaf.BottomEdge
-                                || ln.LeftEdge == leaf.RightEdge
-                                || ln.BottomEdge == leaf.TopEdge
-                            select ln;
+                                         where ln.RightEdge == leaf.LeftEdge
+                                             || ln.TopEdge == leaf.BottomEdge
+                                             || ln.LeftEdge == leaf.RightEdge
+                                             || ln.BottomEdge == leaf.TopEdge
+                                         select ln;
 
             return query.ToList();
         }
@@ -158,6 +161,25 @@ namespace ProcDungeon.Structures
 
             return _random.Next(0, 2) == 1 ? Orientation.Horizontal : Orientation.Vertical;
 
+        }
+
+        public static Point GetLeafOverlapPoint(BSPNode l1, BSPNode l2)
+        {
+            // get the area of overlap, should only occure on a singe axis
+            var areaOverlapX = Math.Min(l1.RightEdge, l2.RightEdge) - Math.Max(l1.LeftEdge, l2.LeftEdge);
+            var areaOverlapY = Math.Min(l1.BottomEdge, l2.BottomEdge) - Math.Max(l1.TopEdge, l2.TopEdge);
+
+            // get half of the ovelrap while avoiding division by zero error
+            int offsetX = 0;
+            int offsetY = 0;
+            if (areaOverlapX > 0) offsetX = areaOverlapX / 2;
+            if (areaOverlapY > 0) offsetY = areaOverlapY / 2;
+
+            // add the offset to the leaf with the highest axis
+            int centerX = Math.Max(l1.LeftEdge, l2.LeftEdge) + offsetX;
+            int centerY = Math.Max(l1.TopEdge, l2.TopEdge) + offsetY;            
+
+            return new Point(centerX, centerY);
         }
     }
 }

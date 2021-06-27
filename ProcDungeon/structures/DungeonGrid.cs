@@ -6,7 +6,7 @@ using ProcDungeon.Structures;
 
 namespace ProcDungeon
 {
-	public class DungeonGrid<T> where T : Tile, new()
+	public class DungeonGrid<T> where T : ITileNode, new()
 	{
 		private T[,] _grid;
 		public T[,] Grid => _grid;
