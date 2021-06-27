@@ -34,9 +34,18 @@ namespace ProcDungeon.Tests
             graph.AddNodes(new List<DNode>{n1, n2, n3});
 
 			BSPDungeonAlgorythm alg = new BSPDungeonAlgorythm();
-			DungeonGrid<Tile> tileMap = alg.Generate(map, graph);
+			alg.Generate(map, graph);
 
             Assert.Equal(graph.NodeCount, alg.Rooms.Count);
+        }
+        [Fact]
+        public void TestJoin2BSPNodes()
+        {
+            var leaf1 = new BSPNode(0,2,0,2);
+            var leaf2 = new BSPNode(2,4,2,4);
+            BSPDungeonAlgorythm alg = new BSPDungeonAlgorythm();
+            alg.Join(leaf1, leaf2);
+
         }
     }
     public class TestTRandomAlgorythm
@@ -53,7 +62,7 @@ namespace ProcDungeon.Tests
             }
 
             RandomPlacementAlgorythm alg = new RandomPlacementAlgorythm();
-			DungeonGrid<Tile> tileMap = alg.Generate(map, graph);
+			alg.Generate(map, graph);
             Assert.Equal(graph.NodeCount, alg.Rooms.Count);
         }
     }
