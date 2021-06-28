@@ -6,6 +6,8 @@ namespace ProcDungeon.Interfaces
     public interface IGenerationAlgorythm
     {
         public List<Rectangle> Rooms { get; }
-        public void Generate(DungeonGrid<Tile> canvas, DungeonGraph graph);
+        public DungeonGrid<Tile> Grid {get; }
+        public void Generate(DungeonGraph graph);
+        public void CreateCorridoor(List<Point> points);
     }
 }

@@ -13,7 +13,15 @@ namespace ProcDungeon.Algorythms
 
         public List<Rectangle> Rooms  => _rooms;
 
-        public void Generate(DungeonGrid<Tile> grid, DungeonGraph graph)
+        public DungeonGrid<Tile> Grid {get; }
+        public RandomPlacementAlgorythm(DungeonGrid<Tile> g) => Grid = g;
+
+        public void CreateCorridoor(List<Point> points)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Generate(DungeonGraph graph)
         {
             var rects = new List<Rectangle>();
 			foreach (DNode node in graph.Nodes)
@@ -26,7 +34,7 @@ namespace ProcDungeon.Algorythms
                     {
                         throw new Exception("dungeon generation failed due to infinite loop");
                     }
-                    var p = new Point(_random.Next(1, grid.Grid.GetLength(0) - 6), _random.Next(1, grid.Grid.GetLength(1) - 6));
+                    var p = new Point(_random.Next(1, Grid.Grid.GetLength(0) - 6), _random.Next(1, Grid.Grid.GetLength(1) - 6));
                     int w = _random.Next(2, 6);
                     int h = _random.Next(2, 6);
                     
@@ -51,7 +59,7 @@ namespace ProcDungeon.Algorythms
                 {
                     for (int x = rect.x; x < rect.x + rect.width; x++)
                     {
-                        grid.Grid[y,x].Blocking = false;
+                        Grid.Grid[y,x].Blocking = false;
                     }
                 }
                 rects.Add(rect);
