@@ -33,19 +33,30 @@ namespace ProcDungeon.Tests
 
             graph.AddNodes(new List<DNode>{n1, n2, n3});
 
-			BSPDungeonAlgorythm alg = new BSPDungeonAlgorythm();
-			alg.Generate(map, graph);
+			BSPDungeonAlgorythm alg = new BSPDungeonAlgorythm(map);
+			alg.Generate(graph);
 
             Assert.Equal(graph.NodeCount, alg.Rooms.Count);
         }
         [Fact]
-        public void TestJoin2BSPNodes()
+        public void TestCorridoorBetweenBSPNodes()
         {
-            var leaf1 = new BSPNode(0,2,0,2);
-            var leaf2 = new BSPNode(2,4,2,4);
-            BSPDungeonAlgorythm alg = new BSPDungeonAlgorythm();
-            alg.Join(leaf1, leaf2);
+            var map = new DungeonGrid<Tile>(3);
+            var leaf1 = new BSPNode(0,1,0,3);
+            var leaf2 = new BSPNode(1,2,0,3);
+            BSPDungeonAlgorythm alg = new BSPDungeonAlgorythm(map);
+            alg.CreateCorridoor(leaf1, leaf2);
+            Console.WriteLine($"{map.Grid[0,0].Blocking}");
+            Console.WriteLine($"{map.Grid[0,1].Blocking}");
+            Console.WriteLine($"{map.Grid[0,2].Blocking}");
+            Console.WriteLine($"{map.Grid[2,0].Blocking}");
+            Console.WriteLine($"{map.Grid[2,1].Blocking}");
+            Console.WriteLine($"{map.Grid[2,2].Blocking}");
 
+            Assert.False(map.Grid[0,1].Blocking);
+            Assert.False(map.Grid[1,1].Blocking);
+            Assert.True(map.Grid[0,0].Blocking);
+            Assert.True(map.Grid[1,0].Blocking);
         }
     }
     public class TestTRandomAlgorythm
@@ -61,8 +72,8 @@ namespace ProcDungeon.Tests
                 graph.AddNode(n);
             }
 
-            RandomPlacementAlgorythm alg = new RandomPlacementAlgorythm();
-			alg.Generate(map, graph);
+            RandomPlacementAlgorythm alg = new RandomPlacementAlgorythm(map);
+			alg.Generate(graph);
             Assert.Equal(graph.NodeCount, alg.Rooms.Count);
         }
     }
