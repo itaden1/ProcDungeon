@@ -11,10 +11,13 @@ namespace ProcDungeon.Algorythms
         private Random _random = new Random();
         private List<Rectangle> _rooms = new List<Rectangle>();
         public List<Rectangle> Rooms => _rooms;
+        public DungeonGrid<Tile> Grid {get; }
 
-        public void Generate(DungeonGrid<Tile> grid, DungeonGraph graph)
+        public BSPDungeonAlgorythm(DungeonGrid<Tile> g) => Grid = g;
+
+        public void Generate(DungeonGraph graph)
         {
-            var canvas = grid.Grid;
+            var canvas = Grid.Grid;
             BSPNode BSPTree = new BSPNode(0, canvas.GetLength(0), 0, canvas.GetLength(1));
             BSPTree.Partition(graph.NodeCount);
 
@@ -28,7 +31,7 @@ namespace ProcDungeon.Algorythms
             var node = graph.Nodes[0];
             var rect = CreateRectangleFromLeaf(leaf);
 
-            grid.ClearArea(rect);
+            Grid.ClearArea(rect);
             rects.Add(rect);
 
             nodeLeafAssociation[node] = leaf;
@@ -66,9 +69,9 @@ namespace ProcDungeon.Algorythms
                     var l = potentialLeaves[0];
                     Rectangle r = CreateRectangleFromLeaf(l);
                     rects.Add(r);
-                    grid.ClearArea(r);
+                    Grid.ClearArea(r);
                     processedLeaves.Add(l);
-                    Join(nodeLeafAssociation[node], l);
+                    CreateCorridoor(nodeLeafAssociation[node], l);
 
                 }
 
@@ -77,7 +80,7 @@ namespace ProcDungeon.Algorythms
                 // rect = CreateRectangleFromLeaf(leaf);
 
                 // place it on the grid
-                grid.ClearArea(rect);
+                Grid.ClearArea(rect);
 
                 rects.Add(rect);
 
@@ -111,149 +114,70 @@ namespace ProcDungeon.Algorythms
             _rooms.AddRange(rects);
         }
 
-        public void Join(BSPNode l1, BSPNode l2)
+        public void CreateCorridoor(BSPNode l1, BSPNode l2)
         {
-            // the 3 points to join up
-            Point overlap = BSPNode.GetLeafOverlapPoint(l1, l2);
-            Point c1 = new Point(
+            // start and end locations are the center of each rectangle
+            Point startPoint = new Point(
                 l1.RightEdge - (l1.Width / 2),
                 l1.BottomEdge - (l1.Height / 2)
             );
-            Point c2 = new Point(
+            Point endPoint = new Point(
                 l2.RightEdge - (l2.Width / 2),
                 l2.BottomEdge - (l2.Height / 2)
             );
 
-            Rectangle rect1;
-            Rectangle rect2;
-            Rectangle rect3;
-            Rectangle rect4;
+            // for the mid points we need to detrmine whether we are moving 
+            // horizontally or vertically between rooms
+            Point wayPoint1;
+            Point wayPoint2;
+            if (l1.BottomEdge == l2.TopEdge || l1.TopEdge == l2.BottomEdge)
+            {
+                // for vertical alignment we first move along x and then along y finishing on x
+                int halfway = Math.Max(startPoint.x, endPoint.x) - Math.Min(startPoint.x, endPoint.x);
+                wayPoint1 = new Point(halfway, startPoint.y);
+                wayPoint2 = new Point(halfway, endPoint.y);
+            }
+            else
+            {
+                // for horizontal we need to move on the y first and then the x. finishing on y
+                int halfway = Math.Max(startPoint.y, endPoint.y) - Math.Min(startPoint.y, endPoint.y);
+                wayPoint1 = new Point(startPoint.x, halfway);
+                wayPoint2 = new Point(endPoint.x, halfway);
+            }
 
-            if (l1.RightEdge == l2.LeftEdge) // joined horizontally
+            var points = new List<Point>() { startPoint, wayPoint1, wayPoint2, endPoint };
+
+            CreateCorridoor(points);
+        }
+
+        public void CreateCorridoor(List<Point> points)
+        {
+            // OrderedParallelQuery the points from smallest to largest
+            var orderedPoints = points.OrderBy(p => p).ToList();
+
+            // loop through points creating rect from one to the next
+            for (int i = 1; i < orderedPoints.Count - 1; i++)
             {
-                rect1 = new Rectangle()
+                Point p = orderedPoints[i];
+                Point np = orderedPoints[i + 1];
+
+                int w;
+                int h;
+                if (p.x == np.x)
                 {
-                    x = c1.x,
-                    y = c1.y,
-                    width = 1,
-                    height = overlap.y - c1.y
-                };
-                rect2 = new Rectangle()
+                    w = 1; h = np.y - p.y;
+                }
+                else w = np.x - p.x; h = 1;
+
+                var rect = new Rectangle()
                 {
-                    x = c1.x,
-                    y = c1.y + rect1.height,
-                    width = overlap.x - c1.x, 
-                    height = 1
+                    x = p.x,
+                    y = p.y,
+                    width = w,
+                    height = h
                 };
-                rect3 = new Rectangle()
-                {
-                    x = overlap.x,
-                    y = overlap.y,
-                    width = c2.x - overlap.x,
-                    height = 1
-                };
-                rect4 = new Rectangle()
-                {
-                    x = overlap.x + rect3.width,
-                    y = overlap.y,
-                    width = 1,
-                    height = c2.y - overlap.y
-                };
+                Grid.ClearArea(rect);
             }
-            else if (l1.LeftEdge == l2.RightEdge)
-            {
-                rect1 = new Rectangle()
-                {
-                    x = c1.x,
-                    y = c1.y,
-                    width = 1,
-                    height = overlap.y - c1.y
-                };
-                rect2 = new Rectangle()
-                {
-                    x = overlap.x,
-                    y = overlap.y,
-                    width = c1.x - overlap.x,
-                    height = 1,
-                };
-                rect3 = new Rectangle()
-                {
-                    x = c2.x,
-                    y = overlap.y,
-                    width = overlap.x - c2.x,
-                    height = 1
-                };
-                rect4 = new Rectangle()
-                {
-                    x = overlap.x - c2.x,
-                    y = overlap.y,
-                    width = 1,
-                    height = c2.y - overlap.y
-                };
-            }     
-            else if (l1.BottomEdge == l2.BottomEdge)
-            {
-                rect1 = new Rectangle()
-                {
-                    x = c1.x,
-                    y = c1.y,
-                    width = overlap.x - c1.x,
-                    height = 1
-                };
-                rect2 = new Rectangle()
-                {
-                   x = overlap.x,
-                   y = c1.y,
-                   width = 1,
-                   height = overlap.y - c1.y
-                };
-                rect3 = new Rectangle()
-                {
-                   x = overlap.x,
-                   y = overlap.y,
-                   width = 1,
-                   height = c2.y - overlap.y
-                };
-                rect4 = new Rectangle()
-                {
-                    x = overlap.x,
-                    y = c2.y,
-                    width = c2.x - overlap.x,
-                    height = 1
-                };
-            }       
-            else if (l1.TopEdge == l2.BottomEdge)
-            {
-                rect1 = new Rectangle()
-                {
-                    x = c1.x,
-                    y = c1.y,
-                    width = overlap.x - c1.x,
-                    height = 1
-                };
-                rect2 = new Rectangle()
-                {
-                   x = overlap.x,
-                   y = overlap.y,
-                   width = 1,
-                   height = c1.y - overlap.y
-                };
-                rect3 = new Rectangle()
-                {
-                   x = overlap.x,
-                   y = c2.y,
-                   width = 1,
-                   height = overlap.y - c2.y
-                };
-                rect4 = new Rectangle()
-                {
-                    x = overlap.x,
-                    y = c2.y,
-                    width = c2.x - overlap.x,
-                    height = 1
-                };
-            }
-            throw new NotImplementedException();
         }
 
         private static Rectangle CreateRectangleFromLeaf(BSPNode l)
