@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ProcDungeon.Structures
 {   
@@ -8,7 +9,7 @@ namespace ProcDungeon.Structures
     <param name="y">the y coordinate</param>
     </summary>
     */
-    public class Point: IEquatable<Point>
+    public class Point: IEquatable<Point>, IComparable<Point>
     {
         public int x { get; }
         public int y { get; }
@@ -39,5 +40,11 @@ namespace ProcDungeon.Structures
         public override bool Equals(object obj) => this.Equals(obj);
         
         public override int GetHashCode() => x.GetHashCode() ^ y.GetHashCode();
+
+        public int CompareTo([AllowNull] Point other)
+        {
+            if (other is null) return -1;
+            return (this.x + this.y) - (other.x + other.y);
+        }
     }
 }
