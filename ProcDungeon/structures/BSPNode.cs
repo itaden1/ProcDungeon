@@ -123,7 +123,8 @@ namespace ProcDungeon.Structures
 
         private void CreateHorizontalPartition()
         {
-            int split = _random.Next(TopEdge + _height / 3, BottomEdge - _height / 3);
+            var splitPositions = new List<int>(){TopEdge + (_height / 3), BottomEdge - (_height / 3) };
+            int split = splitPositions[_random.Next(0,splitPositions.Count-1)];
             Branch1 = new BSPNode(
                 LeftEdge,
                 RightEdge,
@@ -140,7 +141,8 @@ namespace ProcDungeon.Structures
 
         private void CreateVerticalPartition()
         {
-            int split = _random.Next(LeftEdge + _width / 3, RightEdge - _width / 3);
+            var splitPositions = new List<int>(){LeftEdge + (_width / 3), RightEdge - (_width / 3) };
+            int split = splitPositions[_random.Next(0,splitPositions.Count-1)];
             Branch1 = new BSPNode(
                 LeftEdge,
                 split,
@@ -161,25 +163,6 @@ namespace ProcDungeon.Structures
 
             return _random.Next(0, 2) == 1 ? Orientation.Horizontal : Orientation.Vertical;
 
-        }
-
-        public static Point GetLeafOverlapPoint(BSPNode l1, BSPNode l2)
-        {
-            // get the area of overlap, should only occure on a singe axis
-            var areaOverlapX = Math.Min(l1.RightEdge, l2.RightEdge) - Math.Max(l1.LeftEdge, l2.LeftEdge);
-            var areaOverlapY = Math.Min(l1.BottomEdge, l2.BottomEdge) - Math.Max(l1.TopEdge, l2.TopEdge);
-
-            // get half of the ovelrap while avoiding division by zero error
-            int offsetX = 0;
-            int offsetY = 0;
-            if (areaOverlapX > 0) offsetX = areaOverlapX / 2;
-            if (areaOverlapY > 0) offsetY = areaOverlapY / 2;
-
-            // add the offset to the leaf with the highest axis
-            int centerX = Math.Max(l1.LeftEdge, l2.LeftEdge) + offsetX;
-            int centerY = Math.Max(l1.TopEdge, l2.TopEdge) + offsetY;            
-
-            return new Point(centerX, centerY);
         }
     }
 }

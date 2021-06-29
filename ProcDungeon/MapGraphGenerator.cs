@@ -20,19 +20,9 @@ namespace ProcDungeon
             { "down", new Point(0, 1) }
         };
 
-        public Dictionary<int, List<int>> GenerateGraphFromGrid(int iterations, List<List<Tile>> grid)
-        {
-            //find center of grid
-            int w = grid[0].Count;
-            int h = grid.Count;
-            Point center = new Point(w/2, h/2);
-
-            return nodes;
-        }
         public DungeonGraph GenerateGraphFromGrid(int iterations, DNode[,] grid)
         {
             var _graph = new DungeonGraph();
-
             //find center of grid
             int center_y = grid.GetLength(0)/2;
             int center_x = grid.GetLength(1)/2;

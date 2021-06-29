@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using ProcDungeon.Algorythms;
 using ProcDungeon.Interfaces;
 using ProcDungeon.Structures;
 
 namespace ProcDungeon
 {
-	public class DungeonGrid<T> where T : ITileNode, new()
+	public class DungeonGrid<T> where T : BaseTile, new()
 	{
 		private T[,] _grid;
 		public T[,] Grid => _grid;
@@ -32,5 +33,34 @@ namespace ProcDungeon
 				}
 			}
         }
+
+		public DNode[,] GenerateBasicNodeGrid(int size)
+		{
+			var grid = new DNode[size,size];
+			for (int y = 0; y < size; y++)
+			{
+				for (int x = 0; x < size; x++)
+				{
+					grid[y,x] = new DNode(y >> x);
+				}
+			}
+			return grid;
+		}
+
+		public override string ToString()
+		{
+			// Output the grid where # is bloking and ' ' is not
+			var stringBuilder = new StringBuilder("\n");
+			for (int y = 0; y < Grid.GetLength(0); y++)
+			{
+				for (int x = 0; x < Grid.GetLength(1); x++)
+				{
+					if (Grid[x,y].Blocking) stringBuilder.Append("#");
+					else stringBuilder.Append(" ");
+				}
+				stringBuilder.Append("\n");
+			}
+			return stringBuilder.ToString();
+		}
     } 
 }

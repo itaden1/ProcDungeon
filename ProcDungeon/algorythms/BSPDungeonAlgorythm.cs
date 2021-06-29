@@ -50,67 +50,40 @@ namespace ProcDungeon.Algorythms
             processedNodes.Add(node);
 
             var emergencyBreak = 100;
-            while(nodeQueue.Count > 0)
-            {   
-                emergencyBreak--;
-                if(emergencyBreak <= 0) break;
-                
-                node = nodeQueue.Dequeue();
 
-                foreach(DEdge e in node.Edges)
-                {
-                    // get list of neighbouring leaves whos 
-                    // neighbour count matches or is larger than next node edge count
-                    // closest match is first
-                    var potentialLeaves = BSPTree.GetNeighbouringLeaves(leaf)
-                        .Where(l => BSPTree.GetNeighbouringLeaves(l).Count >= e.NodeTo.Edges.Count)
-                        .Where(l => !(processedLeaves.Contains(l)))
-                        .OrderBy(l => BSPTree.GetNeighbouringLeaves(l).Count).ToList();
-                    var l = potentialLeaves[0];
-                    Rectangle r = CreateRectangleFromLeaf(l);
-                    rects.Add(r);
-                    Grid.ClearArea(r);
-                    processedLeaves.Add(l);
-                    CreateCorridoor(nodeLeafAssociation[node], l);
-
-                }
-
-                // leaf = leafQueue.Dequeue();
-                // node = nodeQueue.Dequeue();
-                // rect = CreateRectangleFromLeaf(leaf);
-
-                // place it on the grid
-                Grid.ClearArea(rect);
-
-                rects.Add(rect);
-
-                // Get neighbouring leaves from BSPTree
-                var leafList = BSPTree.GetNeighbouringLeaves(leaf);
-         
- 
-                foreach(DEdge e in node.Edges)
-                {
-           
-                    leafQueue.Enqueue(leafList[0]);
-                    leafList.RemoveAt(0);
-                
-                    Console.WriteLine($"node({node}) has {node.Edges.Count} edges");
-                    Console.WriteLine($"{e.NodeFrom}--->{e.NodeTo}");
-                    if (e.NodeFrom == node && !(processedNodes.Contains(e.NodeTo)))
-                    {
-                        Console.WriteLine($"queuing {e.NodeTo}");
-                        nodeQueue.Enqueue(e.NodeTo);
-                    }
-                    else if (!(processedNodes.Contains(e.NodeFrom)))
-                    {
-                        Console.WriteLine($"queuing {e.NodeFrom}");
-                        nodeQueue.Enqueue(e.NodeFrom);
-                    }
-         
-                }
-                processedLeaves.Add(leaf);
-                processedNodes.Add(node);
+            foreach(BSPNode l in BSPTree.Leaves)
+            {
+                Rectangle r = CreateRectangleFromLeaf(l);
+                rects.Add(r);
+                Grid.ClearArea(r);
             }
+            // while(nodeQueue.Count > 0)
+            // {   
+            //     emergencyBreak--;
+            //     if(emergencyBreak <= 0) break;
+                
+            //     node = nodeQueue.Dequeue();
+
+            //     foreach(DEdge e in node.Edges)
+            //     {
+            //         // get list of neighbouring leaves whos 
+            //         // neighbour count matches or is larger than next node edge count
+            //         // closest match is first
+            //         var potentialLeaves = BSPTree.GetNeighbouringLeaves(leaf)
+            //             .Where(l => BSPTree.GetNeighbouringLeaves(l).Count >= e.NodeTo.Edges.Count)
+            //             .Where(l => !(processedLeaves.Contains(l)))
+            //             .OrderBy(l => BSPTree.GetNeighbouringLeaves(l).Count).ToList();
+            //         var l = potentialLeaves[0];
+            //         Rectangle r = CreateRectangleFromLeaf(l);
+            //         rects.Add(r);
+            //         Grid.ClearArea(r);
+            //         processedLeaves.Add(l);
+            //         CreateCorridoor(nodeLeafAssociation[node], l);
+            //         nodeLeafAssociation[e.NodeTo] = l;
+            //         nodeQueue.Enqueue(e.NodeTo);
+
+            //     }
+            // }
             _rooms.AddRange(rects);
         }
 
@@ -184,8 +157,8 @@ namespace ProcDungeon.Algorythms
         {
             return new Rectangle()
             {
-                x = l.LeftEdge + 1,
-                y = l.TopEdge + 1,
+                x = l.LeftEdge +1,
+                y = l.TopEdge +1,
                 width = (l.RightEdge - l.LeftEdge) - 2,
                 height = (l.BottomEdge - l.TopEdge) - 2
             };
