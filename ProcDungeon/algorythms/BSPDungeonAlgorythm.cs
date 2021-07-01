@@ -9,54 +9,49 @@ namespace ProcDungeon.Algorythms
     public class BSPDungeonAlgorythm : IGenerationAlgorythm
     {
         private Random _random = new Random();
+        private int _failThreshold = 100;
         private List<Rectangle> _rooms = new List<Rectangle>();
         public List<Rectangle> Rooms => _rooms;
         public DungeonGrid<Tile> Grid {get; }
 
         public BSPDungeonAlgorythm(DungeonGrid<Tile> g) => Grid = g;
 
-        public void Generate(DungeonGraph graph)
+        public void Generate(int roomCount, List<int> exits)
         {
             var canvas = Grid.Grid;
             BSPNode BSPTree = new BSPNode(0, canvas.GetLength(0), 0, canvas.GetLength(1));
-            BSPTree.Partition(graph.NodeCount);
+            BSPTree.Partition(roomCount);
 
             var rects = new List<Rectangle>();
 
-            var nodeLeafAssociation = new Dictionary<DNode, BSPNode>();
-
-            // create entrance point/'s
-            var start = new Point(canvas.GetLength(1) / 2, 0);
-            var leaf = BSPTree.GetLeafeFromPoint(start);
-            var node = graph.Nodes[0];
-            var rect = CreateRectangleFromLeaf(leaf);
-
-            Grid.ClearArea(rect);
-            rects.Add(rect);
-
-            nodeLeafAssociation[node] = leaf;
-
-
-            var leafQueue = new Queue<BSPNode>();
-            var nodeQueue = new Queue<DNode>();
-            var EdgeQueue = new Queue<DEdge>();
-
-            nodeQueue.Enqueue(node);
-
-
-            var processedLeaves = new List<BSPNode>();
-            var processedNodes = new List<DNode>();
-            processedLeaves.Add(leaf);
-            processedNodes.Add(node);
-
-            var emergencyBreak = 100;
-
-            foreach(BSPNode l in BSPTree.Leaves)
+            foreach(BSPNode leaf in BSPTree.Leaves)
             {
-                Rectangle r = CreateRectangleFromLeaf(l);
-                rects.Add(r);
-                Grid.ClearArea(r);
+                Rectangle rect = CreateRectangleFromLeaf(leaf);
+                rects.Add(rect);
+                Grid.ClearArea(rect);
             }
+            Queue<BSPNode> bspQueue = new Queue<BSPNode>();
+            bspQueue.Enqueue(BSPTree);
+            while(bspQueue.Count > 0)
+            {
+                _failThreshold--;
+                if (_failThreshold <= 0) break;
+
+                var bspNode = bspQueue.Dequeue();
+                if (bspNode.Leaves.Count <= 0) continue;
+                
+                JoinBSPLeaves(bspNode.Branch1, bspNode.Branch2);
+                
+                bspQueue.Enqueue(bspNode.Branch1);
+                bspQueue.Enqueue(bspNode.Branch2);
+            }
+
+            // foreach(BSPNode l in BSPTree.Leaves)
+            // {
+            //     Rectangle r = CreateRectangleFromLeaf(l);
+            //     rects.Add(r);
+            //     Grid.ClearArea(r);
+            // }
             // while(nodeQueue.Count > 0)
             // {   
             //     emergencyBreak--;
@@ -85,6 +80,15 @@ namespace ProcDungeon.Algorythms
             //     }
             // }
             _rooms.AddRange(rects);
+        }
+
+        private void JoinBSPLeaves(BSPNode branch1, BSPNode branch2)
+        {
+            List<BSPNode> validLeaves1 = branch1.GetNeighbouringLeaves(branch2);
+            List<BSPNode> validLeaves2 = branch2.GetNeighbouringLeaves(branch1);
+            var r1 = validLeaves1[_random.Next(0, validLeaves1.Count)];
+            var r2 = validLeaves2[_random.Next(0, validLeaves2.Count)];
+            CreateCorridoor(r1, r2);
         }
 
         public void CreateCorridoor(BSPNode l1, BSPNode l2)
@@ -153,14 +157,17 @@ namespace ProcDungeon.Algorythms
             }
         }
 
-        private static Rectangle CreateRectangleFromLeaf(BSPNode l)
+        private Rectangle CreateRectangleFromLeaf(BSPNode leaf)
         {
+            // TODO Create odd shaped rooms by combining rectangles
+            var width = _random.Next((leaf.RightEdge - leaf.LeftEdge + 2)/3, leaf.RightEdge - leaf.LeftEdge - 2);
+            var height = _random.Next((leaf.BottomEdge - leaf.TopEdge + 2)/3, leaf.BottomEdge - leaf.TopEdge - 2);
             return new Rectangle()
             {
-                x = l.LeftEdge +1,
-                y = l.TopEdge +1,
-                width = (l.RightEdge - l.LeftEdge) - 2,
-                height = (l.BottomEdge - l.TopEdge) - 2
+                x = _random.Next(leaf.LeftEdge +1, leaf.RightEdge - width),
+                y = _random.Next(leaf.TopEdge +1, leaf.BottomEdge - height),
+                width = width,
+                height = height
             };
         }
     }
