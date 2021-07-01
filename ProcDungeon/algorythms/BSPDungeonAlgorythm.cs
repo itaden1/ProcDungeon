@@ -46,39 +46,6 @@ namespace ProcDungeon.Algorythms
                 bspQueue.Enqueue(bspNode.Branch2);
             }
 
-            // foreach(BSPNode l in BSPTree.Leaves)
-            // {
-            //     Rectangle r = CreateRectangleFromLeaf(l);
-            //     rects.Add(r);
-            //     Grid.ClearArea(r);
-            // }
-            // while(nodeQueue.Count > 0)
-            // {   
-            //     emergencyBreak--;
-            //     if(emergencyBreak <= 0) break;
-                
-            //     node = nodeQueue.Dequeue();
-
-            //     foreach(DEdge e in node.Edges)
-            //     {
-            //         // get list of neighbouring leaves whos 
-            //         // neighbour count matches or is larger than next node edge count
-            //         // closest match is first
-            //         var potentialLeaves = BSPTree.GetNeighbouringLeaves(leaf)
-            //             .Where(l => BSPTree.GetNeighbouringLeaves(l).Count >= e.NodeTo.Edges.Count)
-            //             .Where(l => !(processedLeaves.Contains(l)))
-            //             .OrderBy(l => BSPTree.GetNeighbouringLeaves(l).Count).ToList();
-            //         var l = potentialLeaves[0];
-            //         Rectangle r = CreateRectangleFromLeaf(l);
-            //         rects.Add(r);
-            //         Grid.ClearArea(r);
-            //         processedLeaves.Add(l);
-            //         CreateCorridoor(nodeLeafAssociation[node], l);
-            //         nodeLeafAssociation[e.NodeTo] = l;
-            //         nodeQueue.Enqueue(e.NodeTo);
-
-            //     }
-            // }
             _rooms.AddRange(rects);
         }
 
