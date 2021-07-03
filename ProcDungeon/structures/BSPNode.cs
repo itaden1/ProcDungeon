@@ -123,8 +123,11 @@ namespace ProcDungeon.Structures
 
         private void CreateHorizontalPartition()
         {
-            var splitPositions = new List<int>(){TopEdge + (_height / 3), BottomEdge - (_height / 3) };
-            int split = splitPositions[_random.Next(0,splitPositions.Count-1)];
+            int split;
+            int min = TopEdge + (_height / 3);
+            int max = BottomEdge - (_height / 3);
+            if (min >= max) split = min;
+            else split = _random.Next(min, max);
             Branch1 = new BSPNode(
                 LeftEdge,
                 RightEdge,
@@ -141,8 +144,11 @@ namespace ProcDungeon.Structures
 
         private void CreateVerticalPartition()
         {
-            var splitPositions = new List<int>(){LeftEdge + (_width / 3), RightEdge - (_width / 3) };
-            int split = splitPositions[_random.Next(0,splitPositions.Count-1)];
+            int split;
+            int min = LeftEdge + (_width / 3);
+            int max = RightEdge - (_width / 3);
+            if (min >= max) split = min;
+            else split = _random.Next(min, max);
             Branch1 = new BSPNode(
                 LeftEdge,
                 split,

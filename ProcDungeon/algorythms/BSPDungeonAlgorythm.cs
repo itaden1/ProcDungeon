@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ProcDungeon.Interfaces;
 using ProcDungeon.Structures;
+using ProcDungeon.Enums;
 
 namespace ProcDungeon.Algorythms
 {
@@ -22,14 +23,16 @@ namespace ProcDungeon.Algorythms
             BSPNode BSPTree = new BSPNode(0, canvas.GetLength(0), 0, canvas.GetLength(1));
             BSPTree.Partition(roomCount);
 
-            var rects = new List<Rectangle>();
-
+            // add rooms to the grid
             foreach(BSPNode leaf in BSPTree.Leaves)
             {
-                Rectangle rect = CreateRectangleFromLeaf(leaf);
-                rects.Add(rect);
+                Rectangle rect = CreateRoomInsideLeaf(leaf);
+                _rooms.Add(rect);
                 Grid.ClearArea(rect);
             }
+
+            // cycle through the BSPTree joining a leaf from each 
+            // child to a child of the neighbouring leaf
             Queue<BSPNode> bspQueue = new Queue<BSPNode>();
             bspQueue.Enqueue(BSPTree);
             while(bspQueue.Count > 0)
@@ -38,43 +41,72 @@ namespace ProcDungeon.Algorythms
                 if (_failThreshold <= 0) break;
 
                 var bspNode = bspQueue.Dequeue();
-                if (bspNode.Leaves.Count <= 0) continue;
-                
-                JoinBSPLeaves(bspNode.Branch1, bspNode.Branch2);
-                
-                bspQueue.Enqueue(bspNode.Branch1);
-                bspQueue.Enqueue(bspNode.Branch2);
+                if (!(bspNode.Branch1 is null || bspNode.Branch2 is null))
+                {
+                    JoinBSPLeaves(bspNode.Branch1, bspNode.Branch2);
+                    
+                    bspQueue.Enqueue(bspNode.Branch1);
+                    bspQueue.Enqueue(bspNode.Branch2);
+                }
             }
-
-            _rooms.AddRange(rects);
         }
 
         private void JoinBSPLeaves(BSPNode branch1, BSPNode branch2)
         {
+            var align = Alignment.Horizontal;
+            if (branch1.BottomEdge == branch2.TopEdge || branch1.TopEdge == branch2.BottomEdge)
+            {
+                align = Alignment.Vertical;
+            }
+
             List<BSPNode> validLeaves1 = branch1.GetNeighbouringLeaves(branch2);
             List<BSPNode> validLeaves2 = branch2.GetNeighbouringLeaves(branch1);
-            var r1 = validLeaves1[_random.Next(0, validLeaves1.Count)];
-            var r2 = validLeaves2[_random.Next(0, validLeaves2.Count)];
-            CreateCorridoor(r1, r2);
+
+            var l1 = validLeaves1[_random.Next(0, validLeaves1.Count)];
+            var l2 = validLeaves2[_random.Next(0, validLeaves2.Count)];
+            Rectangle room1 = null;
+            Rectangle room2 = null;
+            foreach(Rectangle r in Rooms)
+            {
+                if (r.OverlapsWith((Rectangle)l1)) room1 = r;
+                if (r.OverlapsWith((Rectangle)l2)) room2 = r;
+                if (!(room1 is null) && !(room2 is null))
+                {
+                    CreateCorridoor(room1, room2, align);
+                    break;
+                }
+            }
         }
 
-        public void CreateCorridoor(BSPNode l1, BSPNode l2)
+        public void CreateCorridoor(Rectangle r1, Rectangle r2, Alignment align)
         {
             // start and end locations are the center of each rectangle
             Point startPoint = new Point(
-                l1.RightEdge - (l1.Width / 2),
-                l1.BottomEdge - (l1.Height / 2)
+                r1.ex - r1.width / 2,
+                r1.ey - r1.height / 2
             );
             Point endPoint = new Point(
-                l2.RightEdge - (l2.Width / 2),
-                l2.BottomEdge - (l2.Height / 2)
+                r2.ex - r2.width / 2,
+                r2.ey - r2.height / 2
             );
 
-            // for the mid points we need to detrmine whether we are moving 
-            // horizontally or vertically between rooms
+            // int midX = startPoint.x + Math.Abs(endPoint.x - startPoint.x) / 2;
+            // int midY = startPoint.y + Math.Abs(endPoint.x - startPoint.x) / 2;
+            // Point wayPoint1 = new Point(midX, startPoint.y);
+            // Point wayPoint2 = new Point(midX,endPoint.y);
+            // if (align == Alignment.Vertical)
+            // {
+            //     wayPoint1 = new Point(startPoint.x, midY);
+            //     wayPoint2 = new Point(endPoint.x, midY);
+            // }
+          
+
+            // // for the mid points we need to detrmine whether we are moving 
+            // // horizontally or vertically between rooms
             Point wayPoint1;
             Point wayPoint2;
-            if (l1.BottomEdge == l2.TopEdge || l1.TopEdge == l2.BottomEdge)
+            if (align == Alignment.Vertical)
+            // if (l1.BottomEdge == l2.TopEdge || l1.TopEdge == l2.BottomEdge)
             {
                 // for vertical alignment we first move along x and then along y finishing on x
                 int halfway = Math.Max(startPoint.x, endPoint.x) - Math.Min(startPoint.x, endPoint.x);
@@ -89,8 +121,8 @@ namespace ProcDungeon.Algorythms
                 wayPoint2 = new Point(endPoint.x, halfway);
             }
 
-            var points = new List<Point>() { startPoint, wayPoint1, wayPoint2, endPoint };
-
+            var points = new List<Point>() { 
+                startPoint, wayPoint1, wayPoint2, endPoint };
             CreateCorridoor(points);
         }
 
@@ -100,7 +132,7 @@ namespace ProcDungeon.Algorythms
             var orderedPoints = points.OrderBy(p => p).ToList();
 
             // loop through points creating rect from one to the next
-            for (int i = 1; i < orderedPoints.Count - 1; i++)
+            for (int i = 0; i < orderedPoints.Count - 1; i++)
             {
                 Point p = orderedPoints[i];
                 Point np = orderedPoints[i + 1];
@@ -124,11 +156,28 @@ namespace ProcDungeon.Algorythms
             }
         }
 
-        private Rectangle CreateRectangleFromLeaf(BSPNode leaf)
+        private Rectangle CreateRoomInsideLeaf(BSPNode leaf)
         {
             // TODO Create odd shaped rooms by combining rectangles
-            var width = _random.Next((leaf.RightEdge - leaf.LeftEdge + 2)/3, leaf.RightEdge - leaf.LeftEdge - 2);
-            var height = _random.Next((leaf.BottomEdge - leaf.TopEdge + 2)/3, leaf.BottomEdge - leaf.TopEdge - 2);
+
+            // creat a random width ensuring that min is not greater than max
+            int width = 2;
+            var minWidth = (leaf.RightEdge - leaf.LeftEdge + 2) / 3;
+            var maxWidth = leaf.RightEdge - leaf.LeftEdge - 2;
+            if (!(minWidth >= maxWidth)) 
+            {
+                width = _random.Next(minWidth, maxWidth);
+            }
+
+            // creat a random height ensuring that min is not greater than max
+            int height = 2;
+            int minHeight = (leaf.BottomEdge - leaf.TopEdge + 2) / 3;
+            int maxHeight =  leaf.BottomEdge - leaf.TopEdge - 2;
+            if (!(minHeight >= maxHeight))
+            {
+                height = _random.Next(minHeight, maxHeight);
+            }
+
             return new Rectangle()
             {
                 x = _random.Next(leaf.LeftEdge +1, leaf.RightEdge - width),

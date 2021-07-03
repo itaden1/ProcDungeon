@@ -26,8 +26,20 @@ namespace ProcDungeon.Structures
         }
 
         public static Point operator+ (Point a, Point b) => new Point(a.x + b.x, a.y + b.y);
-        public static bool operator< (Point a, Point b) => (a.x < b.x || a.y < b.y);
-        public static bool operator> (Point a, Point b) => (a.x > b.x || a.y > b.y);
+        public static bool operator< (Point a, Point b)
+        {
+            int dx = b.x - a.x;
+            int dy = b.y - a.y;
+            int d = (int)Math.Sqrt(Math.Pow(dx, 2) + Math.Pow(dy, 2));
+            return d < 0;
+        }
+        public static bool operator> (Point a, Point b)
+        {
+            int dx = b.x - a.x;
+            int dy = b.y - a.y;
+            int d = (int)Math.Sqrt(Math.Pow(dx, 2) + Math.Pow(dy, 2));
+            return d > 0;
+        }
         public static bool operator== (Point a, Point b) => (a.x == b.x && a.y == b.y);
         public static bool operator!= (Point a, Point b) => !(a==b);
     

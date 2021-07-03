@@ -55,8 +55,8 @@ namespace ProcDungeon
 			{
 				for (int x = 0; x < Grid.GetLength(1); x++)
 				{
-					if (Grid[x,y].Blocking) stringBuilder.Append("#");
-					else stringBuilder.Append(" ");
+					if (Grid[y,x].Blocking) stringBuilder.Append("# ");
+					else stringBuilder.Append(". ");
 				}
 				stringBuilder.Append("\n");
 			}
