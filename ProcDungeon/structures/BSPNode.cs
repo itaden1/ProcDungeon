@@ -67,10 +67,10 @@ namespace ProcDungeon.Structures
         {
             // Select an edge node from the BSPTree based on somecoordinates
             IEnumerable<BSPNode> query = from n in Leaves
-                                         where n.TopEdge <= p.y
-                                         where n.BottomEdge >= p.y
-                                         where n.LeftEdge <= p.x
-                                         where n.RightEdge >= p.x
+                                         where n.TopEdge <= p.Y
+                                         where n.BottomEdge >= p.Y
+                                         where n.LeftEdge <= p.X
+                                         where n.RightEdge >= p.X
                                          select n;
             return query.First();
         }

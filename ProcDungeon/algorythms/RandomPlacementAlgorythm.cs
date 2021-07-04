@@ -17,7 +17,7 @@ namespace ProcDungeon.Algorythms
         public DungeonGrid<Tile> Grid {get; }
         public RandomPlacementAlgorythm(DungeonGrid<Tile> g) => Grid = g;
 
-        public void CreateCorridoor(List<Point> points)
+        public void ConnectPoints(List<Point> points)
         {
             throw new NotImplementedException();
         }
@@ -40,7 +40,7 @@ namespace ProcDungeon.Algorythms
                 var p = new Point(_random.Next(1, Grid.Grid.GetLength(0) - w), _random.Next(1, Grid.Grid.GetLength(1) - h));
 
                 // Create a rect
-                rect = new Rectangle(){x = p.x, y = p.y, width = w, height = h};
+                rect = new Rectangle(){X = p.X, Y = p.Y, Width = w, Height = h};
 
                 // make sure its inside bounds and does not overlap with previouse rects
                 bool validPlacement = true;
@@ -53,7 +53,7 @@ namespace ProcDungeon.Algorythms
                 }
                 if (validPlacement)
                 {
-                    Grid.ClearArea(rect);
+                    Grid.ClearArea(rect, 1);
                     rects.Add(rect);
                 }
                 else continue;

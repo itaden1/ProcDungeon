@@ -2,31 +2,32 @@ namespace ProcDungeon.Structures
 {
     public class Rectangle
     {
-		public int x;
-		public int y;
-		public int width;
-		public int height;
+		public int X;
+		public int Y;
+		public int Width;
+		public int Height;
 
-		public int  ex => x + width;
-		public int ey => y + height;
+		public int  EndX => X + Width;
+		public int EndY => Y + Height;
+		public Point Center => new Point(EndX - Width / 2, EndY - Height / 2);
 		public bool OverlapsWith(Rectangle other)
 		{
-			return !(other.x > x + width || other.y > y + height || other.x + other.width < x || other.y + other.height < y);   
+			return !(other.X > X + Width || other.Y > Y + Height || other.X + other.Width < X || other.Y + other.Height < Y);   
 		}
 
-		public override string ToString() => $"x:{x}, y:{y}, w:{width}, h:{height}";
+		public override string ToString() => $"x:{X}, y:{Y}, w:{Width}, h:{Height}";
 		public static explicit operator Rectangle(BSPNode n)
 		{
 			return new Rectangle(){
-				x = n.LeftEdge,
-				y = n.TopEdge,
-				width = n.RightEdge - n.LeftEdge,
-				height = n.BottomEdge - n.TopEdge
+				X = n.LeftEdge,
+				Y = n.TopEdge,
+				Width = n.RightEdge - n.LeftEdge,
+				Height = n.BottomEdge - n.TopEdge
 			};
 		}
 		public static implicit operator BSPNode(Rectangle r)
 		{
-			return new BSPNode(r.x, r.x + r.width, r.y, r.y + r.height);
+			return new BSPNode(r.X, r.X + r.Width, r.Y, r.Y + r.Height);
 		}
     }
 

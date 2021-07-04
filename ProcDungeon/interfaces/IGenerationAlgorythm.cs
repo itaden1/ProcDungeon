@@ -8,6 +8,6 @@ namespace ProcDungeon.Interfaces
         public List<Rectangle> Rooms { get; }
         public DungeonGrid<Tile> Grid {get; }
         public void Generate(int roomCount, List<int> exits);
-        public void CreateCorridoor(List<Point> points);
+        public void ConnectPoints(List<Point> points);
     }
 }

@@ -11,36 +11,36 @@ namespace ProcDungeon.Structures
     */
     public class Point: IEquatable<Point>, IComparable<Point>
     {
-        public int x { get; }
-        public int y { get; }
+        public int X { get; }
+        public int Y { get; }
 
         public Point(int x, int y)
         {
-            this.x = x;
-            this.y = y;
+            this.X = x;
+            this.Y = y;
         }
 
         public override string ToString()
         {
-            return $"Point({this.x}, {this.y})";
+            return $"Point({this.X}, {this.Y})";
         }
 
-        public static Point operator+ (Point a, Point b) => new Point(a.x + b.x, a.y + b.y);
+        public static Point operator+ (Point a, Point b) => new Point(a.X + b.X, a.Y + b.Y);
         public static bool operator< (Point a, Point b)
         {
-            int dx = b.x - a.x;
-            int dy = b.y - a.y;
+            int dx = b.X - a.X;
+            int dy = b.Y - a.Y;
             int d = (int)Math.Sqrt(Math.Pow(dx, 2) + Math.Pow(dy, 2));
             return d < 0;
         }
         public static bool operator> (Point a, Point b)
         {
-            int dx = b.x - a.x;
-            int dy = b.y - a.y;
+            int dx = b.X - a.X;
+            int dy = b.Y - a.Y;
             int d = (int)Math.Sqrt(Math.Pow(dx, 2) + Math.Pow(dy, 2));
             return d > 0;
         }
-        public static bool operator== (Point a, Point b) => (a.x == b.x && a.y == b.y);
+        public static bool operator== (Point a, Point b) => (a.X == b.X && a.Y == b.Y);
         public static bool operator!= (Point a, Point b) => !(a==b);
     
         public bool Equals(Point p)
@@ -51,12 +51,12 @@ namespace ProcDungeon.Structures
 
         public override bool Equals(object obj) => this.Equals(obj);
         
-        public override int GetHashCode() => x.GetHashCode() ^ y.GetHashCode();
+        public override int GetHashCode() => X.GetHashCode() ^ Y.GetHashCode();
 
         public int CompareTo([AllowNull] Point other)
         {
             if (other is null) return -1;
-            return (this.x + this.y) - (other.x + other.y);
+            return (this.X + this.Y) - (other.X + other.Y);
         }
     }
 }

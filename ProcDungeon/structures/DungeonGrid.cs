@@ -23,13 +23,14 @@ namespace ProcDungeon
 			}
 		}
 
-        internal void ClearArea(Rectangle rect)
+        internal void ClearArea(Rectangle rect, byte symbol)
         {
-			for (int y = rect.y; y < rect.y + rect.height; y++)
+			for (int y = rect.Y; y < rect.Y + rect.Height; y++)
 			{
-				for (int x = rect.x; x < rect.x + rect.width; x++)
+				for (int x = rect.X; x < rect.X + rect.Width; x++)
 				{
 					Grid[y, x].Blocking = false;
+					Grid[y, x].BitSymbol = symbol;
 				}
 			}
         }
@@ -55,8 +56,9 @@ namespace ProcDungeon
 			{
 				for (int x = 0; x < Grid.GetLength(1); x++)
 				{
-					if (Grid[y,x].Blocking) stringBuilder.Append("# ");
-					else stringBuilder.Append(". ");
+					if (Grid[y,x].BitSymbol == 0) stringBuilder.Append("# ");
+					else if (Grid[y,x].BitSymbol == 2) stringBuilder.Append(". ");
+					else stringBuilder.Append("  ");
 				}
 				stringBuilder.Append("\n");
 			}

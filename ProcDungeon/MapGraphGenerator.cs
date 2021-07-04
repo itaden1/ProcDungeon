@@ -63,16 +63,16 @@ namespace ProcDungeon
                     // 3 if direction is not within bounds try again
                     Point newPosition = currentPosition + direction;
                     int gridDimension = grid.GetLength(0);
-                    if (newPosition.x < 0 || newPosition.y < 0 
-                        || newPosition.x > gridDimension - 1 || newPosition.y > gridDimension - 1) 
+                    if (newPosition.X < 0 || newPosition.Y < 0 
+                        || newPosition.X > gridDimension - 1 || newPosition.Y > gridDimension - 1) 
                     {
                         choices.Remove(choice);
                         continue;
                     }
                 
                     newNode = grid[
-                        currentPosition.y + direction.y,
-                        currentPosition.x + direction.x
+                        currentPosition.Y + direction.Y,
+                        currentPosition.X + direction.X
                         ];
 
                     // 4 if node in direction exists and already has an edge pick a new direction
