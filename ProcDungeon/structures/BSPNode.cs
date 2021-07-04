@@ -164,8 +164,8 @@ namespace ProcDungeon.Structures
         }
         private Orientation GetOrientation()
         {
-            if (_height / _width * 100 < 10) return Orientation.Vertical;
-            if (_width / _height * 100 < 10) return Orientation.Horizontal;
+            if (_height / _width * 100 < 20) return Orientation.Vertical;
+            if (_width / _height * 100 < 20) return Orientation.Horizontal;
 
             return _random.Next(0, 2) == 1 ? Orientation.Horizontal : Orientation.Vertical;
 

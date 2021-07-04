@@ -20,10 +20,10 @@ namespace ProcDungeon.Tests
         [Fact]
         public void TestGenerateGridFromBSP()
         {
-            var map = new DungeonGrid<Tile>(30);
+            var map = new DungeonGrid<Tile>(70);
 
 			BSPDungeonAlgorythm alg = new BSPDungeonAlgorythm(map);
-			alg.Generate(10, new List<int>(){1,2});
+			alg.Generate(30, new List<int>(){1,2});
 
             Console.WriteLine(map.ToString());
 

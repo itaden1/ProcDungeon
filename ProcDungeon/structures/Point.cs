@@ -20,6 +20,11 @@ namespace ProcDungeon.Structures
             this.Y = y;
         }
 
+        public int DistanceTo(Point p)
+        {
+            throw new NotImplementedException();
+        }
+
         public override string ToString()
         {
             return $"Point({this.X}, {this.Y})";

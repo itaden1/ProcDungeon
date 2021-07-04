@@ -20,7 +20,8 @@ namespace ProcDungeon.Algorythms
         public void Generate(int roomCount, List<int> exits)
         {
             var canvas = Grid.Grid;
-            BSPNode BSPTree = new BSPNode(2, canvas.GetLength(0)-4, 2, canvas.GetLength(1)-4);
+            // TODO make this configurable
+            BSPNode BSPTree = new BSPNode(2, canvas.GetLength(0)-2, 2, canvas.GetLength(1)-2);
             BSPTree.Partition(roomCount);
 
             // add rooms to the grid
@@ -53,17 +54,22 @@ namespace ProcDungeon.Algorythms
 
         private void JoinBSPLeaves(BSPNode branch1, BSPNode branch2)
         {
+            // make sure we are aware of whether the rooms are top to bottom or left to right
             var align = Alignment.Horizontal;
             if (branch1.BottomEdge == branch2.TopEdge || branch1.TopEdge == branch2.BottomEdge)
             {
                 align = Alignment.Vertical;
             }
 
+            // Get all possible leaves that we may wish to connect
             List<BSPNode> validLeaves1 = branch1.GetNeighbouringLeaves(branch2);
             List<BSPNode> validLeaves2 = branch2.GetNeighbouringLeaves(branch1);
 
+            // Chose 2 random leaves to connect
             var l1 = validLeaves1[_random.Next(0, validLeaves1.Count)];
             var l2 = validLeaves2[_random.Next(0, validLeaves2.Count)];
+
+            // Get the room contained in each leaf
             Rectangle room1 = null;
             Rectangle room2 = null;
             foreach(Rectangle r in Rooms)
@@ -87,19 +93,18 @@ namespace ProcDungeon.Algorythms
             Point wayPoint1;
             Point wayPoint2;
             if (align == Alignment.Horizontal)
-            // if (l1.BottomEdge == l2.TopEdge || l1.TopEdge == l2.BottomEdge)
             {
                 // for vertical alignment we first move along x and then along y finishing on x
-                int distance = Math.Max(startPoint.X, endPoint.X) - Math.Min(startPoint.X, endPoint.X);
-                wayPoint1 = new Point(startPoint.X + distance/2, startPoint.Y);
-                wayPoint2 = new Point(startPoint.X + distance/2, endPoint.Y);
+                int distanceX = Math.Max(startPoint.X, endPoint.X) - Math.Min(startPoint.X, endPoint.X);
+                wayPoint1 = new Point(startPoint.X + distanceX / 2, startPoint.Y);
+                wayPoint2 = new Point(startPoint.X + distanceX / 2, endPoint.Y);
             }
             else
             {
                 // for horizontal we need to move on the y first and then the x. finishing on y
-                int distance = Math.Max(startPoint.Y, endPoint.Y) - Math.Min(startPoint.Y, endPoint.Y);
-                wayPoint1 = new Point(startPoint.X, startPoint.Y + distance/2);
-                wayPoint2 = new Point(endPoint.X, startPoint.Y + distance/2);
+                int distanceY = Math.Max(startPoint.Y, endPoint.Y) - Math.Min(startPoint.Y, endPoint.Y);
+                wayPoint1 = new Point(startPoint.X, startPoint.Y + distanceY / 2);
+                wayPoint2 = new Point(endPoint.X, startPoint.Y + distanceY / 2);
             }
 
             var points = new List<Point>() { 
@@ -109,8 +114,6 @@ namespace ProcDungeon.Algorythms
 
         public void ConnectPoints(List<Point> points)
         {
-            // OrderedParallelQuery the points from smallest to largest
-            // var orderedPoints = points.OrderBy(p => p).ToList();
 
             // loop through points creating rect from one to the next
             for (int i = 0; i < points.Count; i++)
@@ -122,7 +125,6 @@ namespace ProcDungeon.Algorythms
                 {
                     corridoor = CreateVerticalCorridoor(p, np);
                 }
-                // Grid.ClearArea(corridoor);
                 Grid.ClearArea(corridoor, 2);
             }
         }
@@ -149,6 +151,7 @@ namespace ProcDungeon.Algorythms
 
         private Point getNextPoint(Point p, List<Point> points)
         {
+            // retrieve a Point from the list where 1 axis is the same as supplied Point
             IEnumerable<Point> pQuery = from _p in points 
                                 where (!(_p == p)) &&
                                     _p.X == p.X || _p.Y == p.Y
