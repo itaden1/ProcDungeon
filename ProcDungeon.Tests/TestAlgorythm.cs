@@ -20,24 +20,22 @@ namespace ProcDungeon.Tests
         [Fact]
         public void TestGenerateGridFromBSP()
         {
-            var map = new DungeonGrid<Tile>(70);
-
-			BSPDungeonAlgorythm alg = new BSPDungeonAlgorythm(map);
-			alg.Generate(30, new List<int>(){1,2});
+            BSPDungeonAlgorythm alg = new BSPDungeonAlgorythm(20);
+            var map = new DungeonGrid(50, alg);
+            map.GenerateLayout();
 
             Console.WriteLine(map.ToString());
-
-            // Assert.Equal(graph.NodeCount, alg.Rooms.Count);
         }
 
         [Fact]
         public void TestCorridoorBetweenBSPNodes()
         {
-            var map = new DungeonGrid<Tile>(5);
+            BSPDungeonAlgorythm alg = new BSPDungeonAlgorythm(2);
+
+            var map = new DungeonGrid(5, alg);
             var leaf1 = new BSPNode(0,2,0,4);
             var leaf2 = new BSPNode(2,4,0,4);
-            BSPDungeonAlgorythm alg = new BSPDungeonAlgorythm(map);
-            alg.CreateCorridoor((Rectangle)leaf1, (Rectangle)leaf2, Alignment.Vertical);
+            alg.GetWayPoints((Rectangle)leaf1, (Rectangle)leaf2, Alignment.Vertical);
 
             Console.WriteLine(map.ToString());
 
@@ -57,9 +55,9 @@ namespace ProcDungeon.Tests
         [Fact]
         public void TestGenerate()
         {
-            var map = new DungeonGrid<Tile>(20);
-            RandomPlacementAlgorythm alg = new RandomPlacementAlgorythm(map);
-			alg.Generate(5, new List<int>(){1,2});
+            RandomPlacementAlgorythm alg = new RandomPlacementAlgorythm(5);
+            var map = new DungeonGrid(20,  alg);
+			map.GenerateLayout();
             Console.WriteLine(map.ToString());
             Assert.Equal(1,1);
         }

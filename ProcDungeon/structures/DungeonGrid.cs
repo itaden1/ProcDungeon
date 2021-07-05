@@ -7,20 +7,28 @@ using ProcDungeon.Structures;
 
 namespace ProcDungeon
 {
-	public class DungeonGrid<T> where T : BaseTile, new()
+	public class DungeonGrid
 	{
-		private T[,] _grid;
-		public T[,] Grid => _grid;
-		public DungeonGrid(int size)
+		private IGenerationAlgorythm _algorythm;
+		private Tile[,] _grid;
+		public Tile[,] Grid => _grid;
+		public DungeonGrid(int size, IGenerationAlgorythm algorythm)
 		{
-			_grid = new T[size,size];
+			_algorythm = algorythm;
+
+			_grid = new Tile[size,size];
 			for (int i = 0; i < size; i++)
 			{
 				for (int j = 0; j < size; j++)
 				{
-					_grid[j,i] = new T();
+					_grid[j,i] = new Tile();
 				}
 			}
+		}
+
+		public void GenerateLayout()
+		{
+			_algorythm.Generate(this, new List<int>(){1,2});
 		}
 
         internal void ClearArea(Rectangle rect, byte symbol)

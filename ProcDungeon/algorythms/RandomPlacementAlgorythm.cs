@@ -1,34 +1,30 @@
 using System;
 using System.Collections.Generic;
+using ProcDungeon.Enums;
 using ProcDungeon.Interfaces;
 using ProcDungeon.Structures;
 
 namespace ProcDungeon.Algorythms
 {
-    public class RandomPlacementAlgorythm : IGenerationAlgorythm
+    public class RandomPlacementAlgorythm : BaseAlgorythm, IGenerationAlgorythm
     {
         private int _failThreshold = 100;
         public int FailThreshold { get; set; }
-        private Random _random = new Random();
-        private List<Rectangle> _rooms = new List<Rectangle>();
 
-        public List<Rectangle> Rooms  => _rooms;
+        public RandomPlacementAlgorythm(int roomCount) => _roomCount = roomCount;
 
-        public DungeonGrid<Tile> Grid {get; }
-        public RandomPlacementAlgorythm(DungeonGrid<Tile> g) => Grid = g;
-
-        public void ConnectPoints(List<Point> points)
+        public void ConnectWayPoints(List<Point> points)
         {
             throw new NotImplementedException();
         }
 
-        public void Generate(int roomCount, List<int> exits)
+        public void Generate(DungeonGrid canvas, List<int> exits)
         {
             var rects = new List<Rectangle>();
             Rectangle rect;
 
-            var minSize = Grid.Grid.GetLength(0) / 4;
-            var maxSize = Grid.Grid.GetLength(0) / 2;
+            var minSize = canvas.Grid.GetLength(0) / 4;
+            var maxSize = canvas.Grid.GetLength(0) / 2;
 
             while (true)
             {
@@ -37,7 +33,7 @@ namespace ProcDungeon.Algorythms
 
                 int w = _random.Next(minSize, maxSize);
                 int h = _random.Next(minSize, maxSize);
-                var p = new Point(_random.Next(1, Grid.Grid.GetLength(0) - w), _random.Next(1, Grid.Grid.GetLength(1) - h));
+                var p = new Point(_random.Next(1, canvas.Grid.GetLength(0) - w), _random.Next(1, canvas.Grid.GetLength(1) - h));
 
                 // Create a rect
                 rect = new Rectangle(){X = p.X, Y = p.Y, Width = w, Height = h};
@@ -53,12 +49,22 @@ namespace ProcDungeon.Algorythms
                 }
                 if (validPlacement)
                 {
-                    Grid.ClearArea(rect, 1);
+                    canvas.ClearArea(rect, 1);
                     rects.Add(rect);
                 }
                 else continue;
             }  
             _rooms.AddRange(rects);
+        }
+
+        public List<Point> GetWayPoints(Rectangle r1, Rectangle r2, Alignment align)
+        {
+            throw new NotImplementedException();
+        }
+
+        List<Rectangle> IGenerationAlgorythm.ConnectWayPoints(List<Point> points)
+        {
+            throw new NotImplementedException();
         }
     }
 }

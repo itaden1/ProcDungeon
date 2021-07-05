@@ -1,35 +1,32 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using ProcDungeon.Interfaces;
 using ProcDungeon.Structures;
 using ProcDungeon.Enums;
 
 namespace ProcDungeon.Algorythms
 {
-    public class BSPDungeonAlgorythm : IGenerationAlgorythm
+    public class BSPDungeonAlgorythm : BaseAlgorythm, IGenerationAlgorythm
     {
-        private Random _random = new Random();
         private int _failThreshold = 100;
-        private List<Rectangle> _rooms = new List<Rectangle>();
-        public List<Rectangle> Rooms => _rooms;
-        public DungeonGrid<Tile> Grid {get; }
 
-        public BSPDungeonAlgorythm(DungeonGrid<Tile> g) => Grid = g;
+        // public BaseTile[,] Grid {get; }
 
-        public void Generate(int roomCount, List<int> exits)
+        public BSPDungeonAlgorythm(int roomCount) => _roomCount = roomCount;
+
+        public void Generate(DungeonGrid canvas, List<int> exits)
         {
-            var canvas = Grid.Grid;
+            // var canvas = Grid.Grid;
             // TODO make this configurable
-            BSPNode BSPTree = new BSPNode(2, canvas.GetLength(0)-2, 2, canvas.GetLength(1)-2);
-            BSPTree.Partition(roomCount);
+            BSPNode BSPTree = new BSPNode(2, canvas.Grid.GetLength(0)-2, 2, canvas.Grid.GetLength(1)-2);
+            BSPTree.Partition(_roomCount);
 
             // add rooms to the grid
             foreach(BSPNode leaf in BSPTree.Leaves)
             {
                 Rectangle rect = CreateRoomInsideLeaf(leaf);
                 _rooms.Add(rect);
-                Grid.ClearArea(rect, 1);
+                canvas.ClearArea(rect, 1);
             }
 
             // cycle through the BSPTree joining a leaf from each 
@@ -44,15 +41,27 @@ namespace ProcDungeon.Algorythms
                 var bspNode = bspQueue.Dequeue();
                 if (!(bspNode.Branch1 is null || bspNode.Branch2 is null))
                 {
-                    JoinBSPLeaves(bspNode.Branch1, bspNode.Branch2);
-                    
+
+                    // we want to work with rects (rooms) not leaves                    
+                    dynamic rooms = GetRoomsFromLeaves(bspNode.Branch1, bspNode.Branch2);
+
+                    if (rooms is null){}
+                    else
+                    {
+                        List<Point> wayPoints = GetWayPoints(rooms.from, rooms.to, rooms.alignment);
+                        List<Rectangle> corridoors = ConnectWayPoints(wayPoints);
+                        foreach(Rectangle c in corridoors)
+                        {
+                            canvas.ClearArea(c, 2);
+                        }
+                    }
                     bspQueue.Enqueue(bspNode.Branch1);
                     bspQueue.Enqueue(bspNode.Branch2);
                 }
             }
         }
 
-        private void JoinBSPLeaves(BSPNode branch1, BSPNode branch2)
+        private object GetRoomsFromLeaves(BSPNode branch1, BSPNode branch2)
         {
             // make sure we are aware of whether the rooms are top to bottom or left to right
             var align = Alignment.Horizontal;
@@ -76,15 +85,22 @@ namespace ProcDungeon.Algorythms
             {
                 if (r.OverlapsWith((Rectangle)l1)) room1 = r;
                 if (r.OverlapsWith((Rectangle)l2)) room2 = r;
-                if (!(room1 is null) && !(room2 is null))
-                {
-                    CreateCorridoor(room1, room2, align);
-                    break;
-                }
+
             }
+            if (!(room1 is null) && !(room2 is null))
+            {
+                GetWayPoints(room1, room2, align);
+                return new {
+                    from = room1, 
+                    to = room2,
+                    alignment = align
+                };
+                // break;
+            }
+            return null;
         }
 
-        public void CreateCorridoor(Rectangle r1, Rectangle r2, Alignment align)
+        public List<Point> GetWayPoints(Rectangle r1, Rectangle r2, Alignment align)
         {
             // start and end locations are the center of each rectangle
             Point startPoint = r1.Center;
@@ -107,15 +123,15 @@ namespace ProcDungeon.Algorythms
                 wayPoint2 = new Point(endPoint.X, startPoint.Y + distanceY / 2);
             }
 
-            var points = new List<Point>() { 
+            return new List<Point>() { 
                 startPoint, wayPoint1, wayPoint2, endPoint };
-            ConnectPoints(points);
         }
 
-        public void ConnectPoints(List<Point> points)
+        public List<Rectangle> ConnectWayPoints(List<Point> points)
         {
 
             // loop through points creating rect from one to the next
+            List<Rectangle> corridoors = new List<Rectangle>();
             for (int i = 0; i < points.Count; i++)
             {
                 Point p = points[i];
@@ -125,38 +141,9 @@ namespace ProcDungeon.Algorythms
                 {
                     corridoor = CreateVerticalCorridoor(p, np);
                 }
-                Grid.ClearArea(corridoor, 2);
+                corridoors.Add(corridoor);
             }
-        }
-
-        private Rectangle CreateHorizontalCorridoor(Point p1, Point p2)
-        {
-            return new Rectangle(){
-                X = Math.Min(p1.X, p2.X),
-                Y = p1.Y,
-                Width = Math.Abs(p1.X - p2.X) + 1,
-                Height = 1
-            };
-        }
-
-        private Rectangle CreateVerticalCorridoor(Point p1, Point p2)
-        {
-            return new Rectangle(){
-                X = p1.X,
-                Y = Math.Min(p1.Y, p2.Y),
-                Width = 1,
-                Height = Math.Abs(p1.Y - p2.Y) + 1
-            };
-        }
-
-        private Point getNextPoint(Point p, List<Point> points)
-        {
-            // retrieve a Point from the list where 1 axis is the same as supplied Point
-            IEnumerable<Point> pQuery = from _p in points 
-                                where (!(_p == p)) &&
-                                    _p.X == p.X || _p.Y == p.Y
-                                select _p;
-            return pQuery.First();
+            return corridoors;
         }
 
         private Rectangle CreateRoomInsideLeaf(BSPNode leaf)
