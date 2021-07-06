@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using ProcDungeon.Structures;
 
 namespace ProcDungeon.Algorythms
@@ -33,26 +32,19 @@ namespace ProcDungeon.Algorythms
             };
         }
 
-        protected Point getNextPoint(Point p, List<Point> points)
+        protected Point getNextPoint(Point point, List<Point> points)
         {
             // retrieve a Point from the list where 1 axis is the same as supplied Point
-            IEnumerable<Point> pQuery = from _p in points 
-                                where (!(_p == p)) &&
-                                    _p.X == p.X || _p.Y == p.Y
-                                select _p;
-            return pQuery.First();
-        }
-
-        protected void ClearArea(BaseTile[,] grid, Rectangle rect, byte symbol)
-        {
-			for (int y = rect.Y; y < rect.Y + rect.Height; y++)
-			{
-				for (int x = rect.X; x < rect.X + rect.Width; x++)
-				{
-					grid[y, x].Blocking = false;
-					grid[y, x].BitSymbol = symbol;
-				}
-			}
+            
+            foreach(Point p in points)
+            {
+                if (p == point) continue;
+                if (p.X == point.X || p.Y == point.Y)
+                {
+                    return p;
+                }
+            }
+            return null;
         }
     }
 }

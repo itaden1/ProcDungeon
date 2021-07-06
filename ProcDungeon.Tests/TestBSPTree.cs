@@ -1,5 +1,4 @@
 using System;
-using ProcDungeon;
 using ProcDungeon.Structures;
 using Xunit;
 using Xunit.Abstractions;

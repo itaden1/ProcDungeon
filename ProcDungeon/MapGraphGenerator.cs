@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using ProcDungeon.Structures;
 
 namespace ProcDungeon
@@ -113,12 +112,13 @@ namespace ProcDungeon
 
         private DNode getRandomNode(List<DNode> nodeList)
         {
-            var validNodesQ = from n in nodeList
-                where n.Edges.Count < 3
-                select n;
+            var validNodes = new List<DNode>();
+            foreach(DNode n in nodeList)
+            {
+                if (n.Edges.Count < 3) validNodes.Add(n);
+            }
 
-            List<DNode> nodes = validNodesQ.ToList();
-            return nodes[_random.Next(0, nodes.Count)];
+            return validNodes[_random.Next(0, nodes.Count)];
         }
     }
 }

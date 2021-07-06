@@ -25,6 +25,7 @@ namespace ProcDungeon.Tests
             map.GenerateLayout();
 
             Console.WriteLine(map.ToString());
+            Assert.True(1 == 2);
         }
 
         [Fact]
