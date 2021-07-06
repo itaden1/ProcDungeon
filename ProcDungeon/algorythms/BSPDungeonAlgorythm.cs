@@ -10,8 +10,6 @@ namespace ProcDungeon.Algorythms
     {
         private int _failThreshold = 100;
 
-        // public BaseTile[,] Grid {get; }
-
         public BSPDungeonAlgorythm(int roomCount) => _roomCount = roomCount;
 
         public void Generate(DungeonGrid canvas, List<int> exits)
@@ -29,8 +27,8 @@ namespace ProcDungeon.Algorythms
                 canvas.ClearArea(rect, 1);
             }
 
-            // cycle through the BSPTree joining a leaf from each 
-            // child to a child of the neighbouring leaf
+            // // cycle through the BSPTree joining a leaf from each 
+            // // child to a child of the neighbouring leaf
             Queue<BSPNode> bspQueue = new Queue<BSPNode>();
             bspQueue.Enqueue(BSPTree);
             while(bspQueue.Count > 0)
@@ -42,26 +40,23 @@ namespace ProcDungeon.Algorythms
                 if (!(bspNode.Branch1 is null || bspNode.Branch2 is null))
                 {
 
-                    // we want to work with rects (rooms) not leaves                    
-                    dynamic rooms = GetRoomsFromLeaves(bspNode.Branch1, bspNode.Branch2);
-
-                    if (rooms is null){}
-                    else
+                    // // we want to work with rects (rooms) not leaves                    
+                    var rooms = GetRoomsFromLeaves(bspNode.Branch1, bspNode.Branch2);
+                  
+                    List<Point> wayPoints = GetWayPoints(rooms.Item1, rooms.Item2, rooms.Item3);
+                    List<Rectangle> corridoors = ConnectWayPoints(wayPoints);
+                    foreach(Rectangle c in corridoors)
                     {
-                        List<Point> wayPoints = GetWayPoints(rooms.from, rooms.to, rooms.alignment);
-                        List<Rectangle> corridoors = ConnectWayPoints(wayPoints);
-                        foreach(Rectangle c in corridoors)
-                        {
-                            canvas.ClearArea(c, 2);
-                        }
+                        canvas.ClearArea(c, 2);
                     }
+                    
                     bspQueue.Enqueue(bspNode.Branch1);
                     bspQueue.Enqueue(bspNode.Branch2);
                 }
             }
         }
 
-        private object GetRoomsFromLeaves(BSPNode branch1, BSPNode branch2)
+        private (Rectangle, Rectangle, Alignment) GetRoomsFromLeaves(BSPNode branch1, BSPNode branch2)
         {
             // make sure we are aware of whether the rooms are top to bottom or left to right
             var align = Alignment.Horizontal;
@@ -87,17 +82,10 @@ namespace ProcDungeon.Algorythms
                 if (r.OverlapsWith((Rectangle)l2)) room2 = r;
 
             }
-            if (!(room1 is null) && !(room2 is null))
-            {
-                GetWayPoints(room1, room2, align);
-                return new {
-                    from = room1, 
-                    to = room2,
-                    alignment = align
-                };
-                // break;
-            }
-            return null;
+
+            return (room1, room2, align);
+            
+           
         }
 
         public List<Point> GetWayPoints(Rectangle r1, Rectangle r2, Alignment align)
