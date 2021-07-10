@@ -6,6 +6,23 @@ using ProcDungeon.Enums;
 
 namespace ProcDungeon.Algorythms
 {
+    public class AdjacentRooms
+    {
+        private Rectangle _room1;
+        private Rectangle _room2;
+        private Alignment _alignment;
+
+        public Alignment Alignment { get => _alignment; set => _alignment = value; }
+        public Rectangle Room1 { get => _room1; set => _room1 = value; }
+        public Rectangle Room2 { get => _room2; set => _room2 = value; }
+
+        public AdjacentRooms(Rectangle room1, Rectangle room2, Alignment alignment)
+        {
+            Room1 = room1;
+            Room2 = room2;
+            Alignment = alignment;
+        }
+    }
     public class BSPDungeonAlgorythm : BaseAlgorythm, IGenerationAlgorythm
     {
         private int _failThreshold = 100;
@@ -41,9 +58,9 @@ namespace ProcDungeon.Algorythms
                 {
 
                     // // we want to work with rects (rooms) not leaves                    
-                    var rooms = GetRoomsFromLeaves(bspNode.Branch1, bspNode.Branch2);
+                    AdjacentRooms rooms = GetRoomsFromLeaves(bspNode.Branch1, bspNode.Branch2);
                   
-                    List<Point> wayPoints = GetWayPoints(rooms.Item1, rooms.Item2, rooms.Item3);
+                    List<Point> wayPoints = GetWayPoints(rooms.Room1, rooms.Room2, rooms.Alignment);
                     List<Rectangle> corridoors = ConnectWayPoints(wayPoints);
                     foreach(Rectangle c in corridoors)
                     {
@@ -56,7 +73,7 @@ namespace ProcDungeon.Algorythms
             }
         }
 
-        private (Rectangle, Rectangle, Alignment) GetRoomsFromLeaves(BSPNode branch1, BSPNode branch2)
+        private AdjacentRooms GetRoomsFromLeaves(BSPNode branch1, BSPNode branch2)
         {
             // make sure we are aware of whether the rooms are top to bottom or left to right
             var align = Alignment.Horizontal;
@@ -83,7 +100,7 @@ namespace ProcDungeon.Algorythms
 
             }
 
-            return (room1, room2, align);
+            return new AdjacentRooms(room1, room2, align);
             
            
         }
