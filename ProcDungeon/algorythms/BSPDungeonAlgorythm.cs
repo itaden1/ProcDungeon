@@ -33,7 +33,7 @@ namespace ProcDungeon.Algorythms
         {
             // var canvas = Grid.Grid;
             // TODO make this configurable
-            BSPNode BSPTree = new BSPNode(2, canvas.Grid.GetLength(0)-2, 2, canvas.Grid.GetLength(1)-2);
+            BSPNode BSPTree = new BSPNode(1, canvas.Grid.GetLength(0) -2, 1, canvas.Grid.GetLength(1)-2);
             BSPTree.Partition(_roomCount);
 
             // add rooms to the grid
