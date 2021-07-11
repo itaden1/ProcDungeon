@@ -20,8 +20,8 @@ namespace ProcDungeon.Tests
         [Fact]
         public void TestGenerateGridFromBSP()
         {
-            BSPDungeonAlgorythm alg = new BSPDungeonAlgorythm(20);
-            var map = new DungeonGrid(50, alg);
+            BSPDungeonAlgorythm alg = new BSPDungeonAlgorythm(100);
+            var map = new DungeonGrid(30, alg);
             map.GenerateLayout();
 
             Console.WriteLine(map.ToString());

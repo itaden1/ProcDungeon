@@ -59,16 +59,17 @@ namespace ProcDungeon.Algorythms
 
                     // // we want to work with rects (rooms) not leaves                    
                     AdjacentRooms rooms = GetRoomsFromLeaves(bspNode.Branch1, bspNode.Branch2);
-                  
+         
                     List<Point> wayPoints = GetWayPoints(rooms.Room1, rooms.Room2, rooms.Alignment);
                     List<Rectangle> corridoors = ConnectWayPoints(wayPoints);
-                    foreach(Rectangle c in corridoors)
+                    foreach (Rectangle c in corridoors)
                     {
                         canvas.ClearArea(c, 2);
                     }
-                    
+
                     bspQueue.Enqueue(bspNode.Branch1);
                     bspQueue.Enqueue(bspNode.Branch2);
+                    
                 }
             }
         }
@@ -91,18 +92,15 @@ namespace ProcDungeon.Algorythms
             var l2 = validLeaves2[_random.Next(0, validLeaves2.Count)];
 
             // Get the room contained in each leaf
-            Rectangle room1 = null;
-            Rectangle room2 = null;
+            Rectangle room1 = (Rectangle)l1;
+            Rectangle room2 = (Rectangle)l2;
             foreach(Rectangle r in Rooms)
             {
                 if (r.OverlapsWith((Rectangle)l1)) room1 = r;
                 if (r.OverlapsWith((Rectangle)l2)) room2 = r;
-
             }
 
             return new AdjacentRooms(room1, room2, align);
-            
-           
         }
 
         public List<Point> GetWayPoints(Rectangle r1, Rectangle r2, Alignment align)
@@ -159,7 +157,7 @@ namespace ProcDungeon.Algorythms
             int width = 2;
             var minWidth = (leaf.RightEdge - leaf.LeftEdge + 2) / 2;
             var maxWidth = leaf.RightEdge - leaf.LeftEdge - 2;
-            if (!(minWidth >= maxWidth)) 
+            if (minWidth < maxWidth)
             {
                 width = _random.Next(minWidth, maxWidth);
             }
@@ -173,10 +171,14 @@ namespace ProcDungeon.Algorythms
                 height = _random.Next(minHeight, maxHeight);
             }
 
+            int x = leaf.LeftEdge + 1;
+            int y = leaf.TopEdge + 1;
+            if (x < leaf.RightEdge - width) x = _random.Next(x, leaf.RightEdge - width);
+            if (y < leaf.TopEdge - height) y = _random.Next(y, leaf.BottomEdge - height);
             return new Rectangle()
             {
-                X = _random.Next(leaf.LeftEdge +1, leaf.RightEdge - width),
-                Y = _random.Next(leaf.TopEdge +1, leaf.BottomEdge - height),
+                X = x,
+                Y = y,
                 Width = width,
                 Height = height
             };
